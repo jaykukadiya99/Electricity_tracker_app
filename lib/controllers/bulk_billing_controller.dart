@@ -116,7 +116,14 @@ class BulkBillingController extends GetxController {
         }
       }
       
-      Get.back();
+      final billMap = {
+        'id': billId,
+        'month_year': monthYearController.text.trim(),
+        'total_cost_per_unit': costPerUnit,
+        'date_added': DateTime.now().millisecondsSinceEpoch,
+      };
+
+      Get.offNamed('/bill_details', arguments: {'bill': billMap});
       Get.snackbar('Success', 'Bulk bill created successfully', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green[100], colorText: Colors.green[900]);
     } catch (e) {
       Get.snackbar('Error', 'Failed to save bulk bill: $e', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red[100], colorText: Colors.red[900]);

@@ -74,6 +74,25 @@ class NewBillScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const Text('Billing Cycle (Date)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF0F172A))),
+                    const SizedBox(height: 8),
+                    GestureDetector(
+                      onTap: () => controller.selectDate(context),
+                      child: AbsorbPointer(
+                        child: TextField(
+                          controller: controller.monthYearController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                            filled: true,
+                            fillColor: const Color(0xFFF1F5F9),
+                            prefixIcon: const Icon(Icons.calendar_today, color: Color(0xFF64748B)),
+                          ),
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    
                     const Text('Select Meter', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF0F172A))),
                     const SizedBox(height: 8),
                     Container(
