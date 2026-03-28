@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../controllers/home_controller.dart';
+import '../controllers/meter_controller.dart';
 import 'home_screen.dart';
 import 'meters_screen.dart';
 import 'settings_screen.dart';
@@ -9,6 +11,11 @@ class MainLayoutController extends GetxController {
   
   void changeTab(int index) {
     currentIndex.value = index;
+    if (index == 0 && Get.isRegistered<HomeController>()) {
+      Get.find<HomeController>().loadDashboardData();
+    } else if (index == 1 && Get.isRegistered<MeterController>()) {
+      Get.find<MeterController>().loadMeters();
+    }
   }
 }
 

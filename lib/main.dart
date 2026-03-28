@@ -4,6 +4,9 @@ import 'controllers/theme_controller.dart';
 import 'controllers/app_controller.dart';
 import 'theme/app_theme.dart';
 import 'views/splash_screen.dart';
+import 'views/meter_setup_screen.dart';
+import 'views/meter_initial_readings_screen.dart';
+import 'views/bulk_billing_screen.dart';
 import 'views/main_layout.dart';
 import 'views/new_bill_screen.dart';
 import 'views/bill_details_screen.dart';
@@ -34,7 +37,10 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         getPages: [
           GetPage(name: '/', page: () => SplashScreen()),
+          GetPage(name: '/setup', page: () => MeterSetupScreen()),
+          GetPage(name: '/initial_readings', page: () => const MeterInitialReadingsScreen()),
           GetPage(name: '/main', page: () => MainLayout()),
+          GetPage(name: '/bulk_bill', page: () => BulkBillingScreen()),
           GetPage(name: '/new_bill', page: () => NewBillScreen()),
           GetPage(name: '/bill_details', page: () => BillDetailsScreen()),
           GetPage(name: '/settings', page: () => SettingsScreen()),

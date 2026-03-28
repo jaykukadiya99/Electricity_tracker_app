@@ -8,6 +8,7 @@ class NewBillController extends GetxController {
   final currentReadings = <int, double>{}.obs; // meterId -> currentReading
   final costPerUnit = 0.0.obs;
   final monthYearController = TextEditingController();
+  final currentReadingController = TextEditingController();
   
   @override
   void onInit() {
@@ -32,8 +33,15 @@ class NewBillController extends GetxController {
     final data = await DatabaseHelper.instance.getAllMeters();
     meters.value = data;
     for (var m in data) {
-      currentReadings[m['id']] = 0.0;
+      currentReadings[m['id']] = (m['latest_reading'] as num?)?.toDouble() ?? 0.0;
     }
+  }
+
+  void onMeterSelected(int meterId) {
+    double val = currentReadings[meterId] ?? 0.0;
+    double latest = meters.firstWhereOrNull((m) => m['id'] == meterId)?['latest_reading'] ?? 0.0;
+    // Only prefill if the user has typed something different from latest reading
+    currentReadingController.text = val > latest ? val.toString() : '';
   }
 
   void setCurrentReading(int meterId, String value) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import '../controllers/app_controller.dart';
 
 class SplashScreen extends StatelessWidget {
   SplashScreen({super.key}) {
@@ -9,7 +9,12 @@ class SplashScreen extends StatelessWidget {
 
   void _navigate() async {
     await Future.delayed(const Duration(seconds: 2));
-    Get.offAllNamed('/main');
+    final AppController appCtrl = Get.find<AppController>();
+    if (appCtrl.isSetupComplete) {
+      Get.offAllNamed('/main');
+    } else {
+      Get.offAllNamed('/setup');
+    }
   }
 
   @override

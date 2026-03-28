@@ -6,9 +6,13 @@ class NewBillScreen extends StatelessWidget {
   final NewBillController controller = Get.put(NewBillController());
   
   // Local state for UI dropdown selection
-  final Rx<int?> selectedMeterId = Rx<int?>(null);
+  late final Rx<int?> selectedMeterId;
 
-  NewBillScreen({super.key});
+  NewBillScreen({super.key}) {
+    final Map<String, dynamic> args = Get.arguments ?? {};
+    final int? mId = args['meter_id'];
+    selectedMeterId = Rx<int?>(mId);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +45,9 @@ class NewBillScreen extends StatelessWidget {
             ? controller.meters.firstWhereOrNull((m) => m['id'] == selectedMeterId.value)
             : null;
         final latestReading = selectedMeterObj != null ? selectedMeterObj['latest_reading'] : 0.0;
-        final curRead = controller.currentReadings[selectedMeterId.value] ?? latestReading;
+        final curRead = selectedMeterId.value != null 
+            ? (controller.currentReadings[selectedMeterId.value] ?? latestReading) 
+            : latestReading;
         final estimatedConsumption = (curRead - latestReading) > 0 ? (curRead - latestReading) : 0.0;
         final totalBillEst = estimatedConsumption * controller.costPerUnit.value;
         
@@ -87,7 +93,12 @@ class NewBillScreen extends StatelessWidget {
                               child: Text(m['meter_name'], style: const TextStyle(fontWeight: FontWeight.w600)),
                             );
                           }).toList(),
-                          onChanged: (val) => selectedMeterId.value = val,
+                          onChanged: (val) {
+                            selectedMeterId.value = val;
+                            if (val != null) {
+                              controller.onMeterSelected(val);
+                            }
+                          },
                         ),
                       ),
                     ),
@@ -96,6 +107,7 @@ class NewBillScreen extends StatelessWidget {
                     const Text('Current Reading (kWh)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF0F172A))),
                     const SizedBox(height: 8),
                     TextField(
+                      controller: controller.currentReadingController,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                         filled: true,

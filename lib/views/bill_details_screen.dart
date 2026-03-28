@@ -292,7 +292,7 @@ class BillDetailsScreen extends StatelessWidget {
                     ],
                   ),
                 );
-              }).toList(),
+              }),
               
               const SizedBox(height: 40),
             ],

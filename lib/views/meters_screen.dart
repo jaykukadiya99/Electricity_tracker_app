@@ -53,6 +53,14 @@ class MetersScreen extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
+                      icon: const Icon(Icons.add_chart, color: Colors.green),
+                      tooltip: 'Add Reading',
+                      onPressed: () async {
+                        await Get.toNamed('/new_bill', arguments: {'meter_id': meter['id']});
+                        controller.loadMeters();
+                      },
+                    ),
+                    IconButton(
                       icon: const Icon(Icons.edit, color: Colors.blue),
                       onPressed: () => _showRenameDialog(context, meter['id'], meter['meter_name']),
                     ),
