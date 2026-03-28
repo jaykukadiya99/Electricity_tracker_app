@@ -7,6 +7,7 @@ import 'views/splash_screen.dart';
 import 'views/meter_setup_screen.dart';
 import 'views/meter_initial_readings_screen.dart';
 import 'views/bulk_billing_screen.dart';
+import 'views/meter_history_screen.dart';
 import 'views/main_layout.dart';
 import 'views/new_bill_screen.dart';
 import 'views/bill_details_screen.dart';
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
           GetPage(name: '/', page: () => SplashScreen()),
           GetPage(name: '/setup', page: () => MeterSetupScreen()),
           GetPage(name: '/initial_readings', page: () => const MeterInitialReadingsScreen()),
+          GetPage(name: '/meter_history', page: () => const MeterHistoryScreen()),
           GetPage(name: '/main', page: () => MainLayout()),
           GetPage(name: '/bulk_bill', page: () => BulkBillingScreen()),
           GetPage(name: '/new_bill', page: () => NewBillScreen()),

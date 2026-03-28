@@ -91,6 +91,12 @@ CREATE TABLE BillingRecords (
     return await db.query('Meter', orderBy: 'id ASC');
   }
 
+  Future<Map<String, dynamic>?> getMeter(int id) async {
+    final db = await instance.database;
+    final res = await db.query('Meter', where: 'id = ?', whereArgs: [id], limit: 1);
+    return res.isNotEmpty ? res.first : null;
+  }
+
   Future<bool> isSetupComplete() async {
     final db = await instance.database;
     final result = await db.rawQuery('SELECT COUNT(*) FROM Meter');
@@ -143,6 +149,17 @@ CREATE TABLE BillingRecords (
     final db = await instance.database;
     return await db.query('BillingRecords',
         where: 'bill_id = ?', whereArgs: [billId], orderBy: 'meter_id ASC');
+  }
+
+  Future<List<Map<String, dynamic>>> getMeterHistory(int meterId) async {
+    final db = await instance.database;
+    return await db.rawQuery('''
+      SELECT r.*, h.month_year, h.date_added 
+      FROM BillingRecords r
+      JOIN BillingHistory h ON r.bill_id = h.id
+      WHERE r.meter_id = ?
+      ORDER BY h.date_added DESC
+    ''', [meterId]);
   }
 
   Future<void> deleteBill(int billId) async {

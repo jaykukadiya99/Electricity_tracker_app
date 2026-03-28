@@ -42,6 +42,9 @@ class MetersScreen extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 12),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: ListTile(
+                onTap: () {
+                  Get.toNamed('/meter_history', arguments: {'meter_id': meter['id']});
+                },
                 contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                 leading: CircleAvatar(
                   backgroundColor: Theme.of(context).primaryColor.withAlpha(20),
