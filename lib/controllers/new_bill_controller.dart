@@ -104,6 +104,7 @@ class NewBillController extends GetxController {
           'current_reading': curReading,
           'consumption': consumption,
           'amount': amount,
+          'created_at': DateTime.now().millisecondsSinceEpoch,
         });
 
         // Update latest reading in Meter

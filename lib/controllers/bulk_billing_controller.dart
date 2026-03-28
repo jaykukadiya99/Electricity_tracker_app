@@ -110,6 +110,7 @@ class BulkBillingController extends GetxController {
             'current_reading': curReading,
             'consumption': consumption,
             'amount': amount,
+            'created_at': DateTime.now().millisecondsSinceEpoch,
           });
 
           await DatabaseHelper.instance.updateMeterLatestReading(mId, curReading);

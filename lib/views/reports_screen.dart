@@ -273,12 +273,14 @@ class ReportsScreen extends StatelessWidget {
                       columns: const [
                         DataColumn(label: Text('Date')),
                         DataColumn(label: Text('Meter')),
+                        DataColumn(label: Text('Prev Unit')),
+                        DataColumn(label: Text('Cur Unit')),
                         DataColumn(label: Text('Usg (kWh)')),
                         DataColumn(label: Text('Amt (₹)')),
                       ],
                       rows: controller.filteredReports.map((report) {
                         final date = DateTime.fromMillisecondsSinceEpoch(
-                          report['date_added'],
+                          report['created_at'],
                         );
                         return DataRow(
                           cells: [
@@ -286,6 +288,8 @@ class ReportsScreen extends StatelessWidget {
                               Text(DateFormat('MMM dd, yy').format(date)),
                             ),
                             DataCell(Text(report['meter_name'].toString())),
+                            DataCell(Text((report['previous_reading'] as num).toStringAsFixed(1))),
+                            DataCell(Text((report['current_reading'] as num).toStringAsFixed(1))),
                             DataCell(
                               Text(
                                 (report['consumption'] as num).toStringAsFixed(

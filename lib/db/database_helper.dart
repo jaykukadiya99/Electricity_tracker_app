@@ -21,7 +21,7 @@ class DatabaseHelper {
     // we use onUpgrade to drop old tables and recreate.
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _createDB,
       onUpgrade: _onUpgrade,
       onConfigure: _onConfigure,
@@ -38,6 +38,15 @@ class DatabaseHelper {
       await db.execute('DROP TABLE IF EXISTS BillingHistory');
       await db.execute('DROP TABLE IF EXISTS TenantSetup');
       await _createDB(db, newVersion);
+    }
+    if (oldVersion < 3) {
+      await db.execute(
+        'ALTER TABLE BillingRecords ADD COLUMN created_at INTEGER DEFAULT 0',
+      );
+      await db.execute('''
+        UPDATE BillingRecords
+        SET created_at = (SELECT date_added FROM BillingHistory WHERE BillingHistory.id = BillingRecords.bill_id)
+      ''');
     }
   }
 
@@ -74,6 +83,7 @@ CREATE TABLE BillingRecords (
   current_reading $realType,
   consumption $realType,
   amount $realType,
+  created_at $intType,
   FOREIGN KEY (bill_id) REFERENCES BillingHistory (id) ON DELETE CASCADE,
   FOREIGN KEY (meter_id) REFERENCES Meter (id) ON DELETE CASCADE
 )
@@ -93,7 +103,12 @@ CREATE TABLE BillingRecords (
 
   Future<Map<String, dynamic>?> getMeter(int id) async {
     final db = await instance.database;
-    final res = await db.query('Meter', where: 'id = ?', whereArgs: [id], limit: 1);
+    final res = await db.query(
+      'Meter',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
     return res.isNotEmpty ? res.first : null;
   }
 
@@ -164,8 +179,8 @@ CREATE TABLE BillingRecords (
 
   // Fetches line-item records with dynamic date bounding and meter selection
   Future<List<Map<String, dynamic>>> getFilteredReports({
-    int? meterId, 
-    int? startDate, 
+    int? meterId,
+    int? startDate,
     int? endDate,
     bool isLatestOnly = false,
   }) async {
@@ -177,77 +192,90 @@ CREATE TABLE BillingRecords (
       whereClause += ' AND r.meter_id = ?';
       whereArgs.add(meterId);
     }
-    
+
     // Storing as milliseconds since epoch, so standard math works
     if (startDate != null) {
-      whereClause += ' AND h.date_added >= ?';
+      whereClause += ' AND r.created_at >= ?';
       whereArgs.add(startDate);
     }
-    
+
     if (endDate != null) {
-      whereClause += ' AND h.date_added <= ?';
+      whereClause += ' AND r.created_at <= ?';
       whereArgs.add(endDate);
     }
 
+    final records = await db.rawQuery('''
+      SELECT 
+        r.id as record_id,
+        r.meter_id,
+        h.month_year,
+        r.created_at,
+        m.meter_name,
+        r.previous_reading,
+        r.current_reading,
+        r.consumption,
+        r.amount
+      FROM BillingRecords r
+      JOIN BillingHistory h ON r.bill_id = h.id
+      JOIN Meter m ON r.meter_id = m.id
+      WHERE $whereClause
+      ORDER BY r.created_at DESC, m.meter_name ASC
+    ''', whereArgs);
+
     if (isLatestOnly) {
-      return await db.rawQuery('''
-        SELECT 
-          r.id as record_id,
-          h.month_year,
-          MAX(h.date_added) as date_added,
-          m.meter_name,
-          r.previous_reading,
-          r.current_reading,
-          r.consumption,
-          r.amount
-        FROM BillingRecords r
-        JOIN BillingHistory h ON r.bill_id = h.id
-        JOIN Meter m ON r.meter_id = m.id
-        WHERE $whereClause
-        GROUP BY r.meter_id
-        ORDER BY m.meter_name ASC
-      ''', whereArgs);
-    } else {
-      return await db.rawQuery('''
-        SELECT 
-          r.id as record_id,
-          h.month_year,
-          h.date_added,
-          m.meter_name,
-          r.previous_reading,
-          r.current_reading,
-          r.consumption,
-          r.amount
-        FROM BillingRecords r
-        JOIN BillingHistory h ON r.bill_id = h.id
-        JOIN Meter m ON r.meter_id = m.id
-        WHERE $whereClause
-        ORDER BY h.date_added DESC, m.meter_name ASC
-      ''', whereArgs);
+      final Map<int, Map<String, dynamic>> latestMap = {};
+      for (var row in records) {
+        int mId = row['meter_id'] as int;
+        if (!latestMap.containsKey(mId)) {
+          latestMap[mId] = row;
+        }
+      }
+      final list = latestMap.values.toList();
+      list.sort(
+        (a, b) =>
+            a['meter_name'].toString().compareTo(b['meter_name'].toString()),
+      );
+      return list;
     }
+
+    return records;
   }
 
   Future<List<Map<String, dynamic>>> getBillingRecords(int billId) async {
     final db = await instance.database;
-    return await db.query('BillingRecords',
-        where: 'bill_id = ?', whereArgs: [billId], orderBy: 'meter_id ASC');
+    return await db.query(
+      'BillingRecords',
+      where: 'bill_id = ?',
+      whereArgs: [billId],
+      orderBy: 'meter_id ASC',
+    );
   }
 
   Future<List<Map<String, dynamic>>> getMeterHistory(int meterId) async {
     final db = await instance.database;
-    return await db.rawQuery('''
-      SELECT r.*, h.month_year, h.date_added 
+    return await db.rawQuery(
+      '''
+      SELECT 
+        h.month_year,
+        r.created_at,
+        r.previous_reading,
+        r.current_reading,
+        r.consumption,
+        r.amount,
+        h.id as bill_id
       FROM BillingRecords r
       JOIN BillingHistory h ON r.bill_id = h.id
       WHERE r.meter_id = ?
-      ORDER BY h.date_added DESC
-    ''', [meterId]);
+      ORDER BY r.created_at DESC
+    ''',
+      [meterId],
+    );
   }
 
   Future<void> deleteBill(int billId) async {
-     final db = await instance.database;
-     // The BillingRecords will also be deleted due to CASCADE
-     await db.delete('BillingHistory', where: 'id = ?', whereArgs: [billId]);
+    final db = await instance.database;
+    // The BillingRecords will also be deleted due to CASCADE
+    await db.delete('BillingHistory', where: 'id = ?', whereArgs: [billId]);
   }
 
   Future<void> clearAllData() async {
