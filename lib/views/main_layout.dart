@@ -4,7 +4,9 @@ import '../controllers/home_controller.dart';
 import '../controllers/meter_controller.dart';
 import 'home_screen.dart';
 import 'meters_screen.dart';
+import 'reports_screen.dart';
 import 'settings_screen.dart';
+import '../controllers/reports_controller.dart';
 
 class MainLayoutController extends GetxController {
   final currentIndex = 0.obs;
@@ -15,6 +17,8 @@ class MainLayoutController extends GetxController {
       Get.find<HomeController>().loadDashboardData();
     } else if (index == 1 && Get.isRegistered<MeterController>()) {
       Get.find<MeterController>().loadMeters();
+    } else if (index == 2 && Get.isRegistered<ReportsController>()) {
+      Get.find<ReportsController>().loadReports();
     }
   }
 }
@@ -27,7 +31,7 @@ class MainLayout extends StatelessWidget {
   final List<Widget> pages = [
     HomeScreen(),
     MetersScreen(),
-    const Scaffold(body: Center(child: Text('Reports Page Coming Soon'))), // Reports Placeholder
+    ReportsScreen(),
     SettingsScreen(),
   ];
 

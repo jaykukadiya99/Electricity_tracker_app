@@ -145,6 +145,88 @@ CREATE TABLE BillingRecords (
     return await db.query('BillingHistory', orderBy: 'date_added DESC');
   }
 
+  // Fetches grouped billing summaries for the Reports screen
+  Future<List<Map<String, dynamic>>> getMonthlyReports() async {
+    final db = await instance.database;
+    return await db.rawQuery('''
+      SELECT 
+        h.id as bill_id, 
+        h.month_year, 
+        h.date_added,
+        SUM(r.amount) as total_amount, 
+        SUM(r.consumption) as total_consumption
+      FROM BillingHistory h
+      LEFT JOIN BillingRecords r ON h.id = r.bill_id
+      GROUP BY h.id, h.month_year, h.date_added
+      ORDER BY h.date_added DESC
+    ''');
+  }
+
+  // Fetches line-item records with dynamic date bounding and meter selection
+  Future<List<Map<String, dynamic>>> getFilteredReports({
+    int? meterId, 
+    int? startDate, 
+    int? endDate,
+    bool isLatestOnly = false,
+  }) async {
+    final db = await instance.database;
+    String whereClause = '1=1';
+    List<dynamic> whereArgs = [];
+
+    if (meterId != null) {
+      whereClause += ' AND r.meter_id = ?';
+      whereArgs.add(meterId);
+    }
+    
+    // Storing as milliseconds since epoch, so standard math works
+    if (startDate != null) {
+      whereClause += ' AND h.date_added >= ?';
+      whereArgs.add(startDate);
+    }
+    
+    if (endDate != null) {
+      whereClause += ' AND h.date_added <= ?';
+      whereArgs.add(endDate);
+    }
+
+    if (isLatestOnly) {
+      return await db.rawQuery('''
+        SELECT 
+          r.id as record_id,
+          h.month_year,
+          MAX(h.date_added) as date_added,
+          m.meter_name,
+          r.previous_reading,
+          r.current_reading,
+          r.consumption,
+          r.amount
+        FROM BillingRecords r
+        JOIN BillingHistory h ON r.bill_id = h.id
+        JOIN Meter m ON r.meter_id = m.id
+        WHERE $whereClause
+        GROUP BY r.meter_id
+        ORDER BY m.meter_name ASC
+      ''', whereArgs);
+    } else {
+      return await db.rawQuery('''
+        SELECT 
+          r.id as record_id,
+          h.month_year,
+          h.date_added,
+          m.meter_name,
+          r.previous_reading,
+          r.current_reading,
+          r.consumption,
+          r.amount
+        FROM BillingRecords r
+        JOIN BillingHistory h ON r.bill_id = h.id
+        JOIN Meter m ON r.meter_id = m.id
+        WHERE $whereClause
+        ORDER BY h.date_added DESC, m.meter_name ASC
+      ''', whereArgs);
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getBillingRecords(int billId) async {
     final db = await instance.database;
     return await db.query('BillingRecords',

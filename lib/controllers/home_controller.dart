@@ -22,26 +22,19 @@ class HomeController extends GetxController {
     final mList = await DatabaseHelper.instance.getAllMeters();
     meters.value = mList;
 
-    double calcBilled = 0.0;
-    double calcConsumption = 0.0;
-
-    for (var m in mList) {
-      calcConsumption += m['latest_reading'] ?? 0.0;
+    final db = await DatabaseHelper.instance.database;
+    final sumResult = await db.rawQuery('SELECT SUM(amount) as total_amount, SUM(consumption) as total_consumption FROM BillingRecords');
+    
+    double tBilled = 0.0;
+    double tCons = 0.0;
+    
+    if (sumResult.isNotEmpty) {
+      tBilled = (sumResult.first['total_amount'] as num?)?.toDouble() ?? 0.0;
+      tCons = (sumResult.first['total_consumption'] as num?)?.toDouble() ?? 0.0;
     }
 
-    // Attempt to calculate total billed across all history or just the latest? Let's use history.
-    for (var _ in bHistory) {
-      // In a real app we would sum the amounts from BillingRecords.
-      // For visual purposes, we'll keep it simple.
-    }
-
-    if (bHistory.isNotEmpty) {
-      totalBilled.value = 14284.50; // Mocking the large value from reference if history exists
-      totalConsumption.value = 842000.0;
-    } else {
-      totalBilled.value = calcBilled;
-      totalConsumption.value = calcConsumption;
-    }
+    totalBilled.value = tBilled;
+    totalConsumption.value = tCons;
 
     isLoading.value = false;
   }
