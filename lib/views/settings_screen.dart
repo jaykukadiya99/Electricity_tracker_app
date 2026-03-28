@@ -1,0 +1,74 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../controllers/theme_controller.dart';
+import '../db/database_helper.dart';
+
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeController themeController = Get.find<ThemeController>();
+    return Scaffold(
+      appBar: AppBar(title: const Text('Settings')),
+      body: ListView(
+        children: [
+          Obx(() => SwitchListTile(
+            title: const Text('Dark Mode'),
+            subtitle: const Text('Toggle between light and dark themes'),
+            value: themeController.isDarkMode,
+            onChanged: (val) => themeController.toggleTheme(),
+            secondary: Icon(themeController.isDarkMode ? Icons.dark_mode : Icons.light_mode),
+          )),
+          const Divider(),
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text('Coming Soon', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          ),
+          const ListTile(
+            leading: Icon(Icons.picture_as_pdf, color: Colors.red),
+            title: Text('Export to PDF'),
+            subtitle: Text('Generate sharing-ready PDF bills'),
+          ),
+          const ListTile(
+            leading: Icon(Icons.share, color: Colors.blue),
+            title: Text('Share via WhatsApp'),
+            subtitle: Text('Instantly send bills to your tenants'),
+          ),
+          const ListTile(
+            leading: Icon(Icons.bar_chart, color: Colors.green),
+            title: Text('Analytics'),
+            subtitle: Text('Track electricity consumption over time'),
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.delete_forever, color: Colors.red),
+            title: const Text('Reset All Data', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            subtitle: const Text('Wipe all history and tenants'),
+            onTap: () => _confirmReset(context),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmReset(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Reset Everything?'),
+        content: const Text('This will permanently delete all your tenants and billing history. This action cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () async {
+              await DatabaseHelper.instance.clearAllData();
+              Get.offAllNamed('/setup');
+            },
+            child: const Text('Reset', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+}
