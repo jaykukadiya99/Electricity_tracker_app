@@ -288,8 +288,18 @@ class ReportsScreen extends StatelessWidget {
                               Text(DateFormat('MMM dd, yy').format(date)),
                             ),
                             DataCell(Text(report['meter_name'].toString())),
-                            DataCell(Text((report['previous_reading'] as num).toStringAsFixed(1))),
-                            DataCell(Text((report['current_reading'] as num).toStringAsFixed(1))),
+                            DataCell(
+                              Text(
+                                (report['previous_reading'] as num)
+                                    .toStringAsFixed(1),
+                              ),
+                            ),
+                            DataCell(
+                              Text(
+                                (report['current_reading'] as num)
+                                    .toStringAsFixed(1),
+                              ),
+                            ),
                             DataCell(
                               Text(
                                 (report['consumption'] as num).toStringAsFixed(

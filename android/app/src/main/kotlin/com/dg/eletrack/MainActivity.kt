@@ -1,4 +1,4 @@
-package com.example.dg_insta_reel
+package com.dg.eletrack
 
 import io.flutter.embedding.android.FlutterActivity
 
