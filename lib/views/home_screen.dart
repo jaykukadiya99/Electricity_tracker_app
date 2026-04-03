@@ -319,6 +319,7 @@ class HomeScreen extends StatelessWidget {
         );
       }),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'home_fab',
         backgroundColor: Theme.of(context).primaryColor,
         elevation: 4,
         onPressed: () {

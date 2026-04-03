@@ -35,6 +35,12 @@ class MyApp extends StatelessWidget {
         themeMode: themeController.isDarkMode
             ? ThemeMode.dark
             : ThemeMode.light,
+        builder: (context, child) {
+          return SafeArea(
+            top: false, // AppBar handles top SafeArea already
+            child: child ?? const SizedBox.shrink(),
+          );
+        },
         initialRoute: '/',
         getPages: [
           GetPage(name: '/', page: () => SplashScreen()),

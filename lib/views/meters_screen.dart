@@ -79,6 +79,7 @@ class MetersScreen extends StatelessWidget {
         );
       }),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'meters_fab',
         backgroundColor: Theme.of(context).primaryColor,
         onPressed: () => _showAddDialog(context),
         icon: const Icon(Icons.add, color: Colors.white),
