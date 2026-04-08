@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/theme_controller.dart';
+import '../controllers/auth_controller.dart';
 import '../db/database_helper.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -9,6 +10,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeController themeController = Get.find<ThemeController>();
+    final AuthController authController = Get.find<AuthController>();
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
@@ -46,6 +48,13 @@ class SettingsScreen extends StatelessWidget {
             title: const Text('Reset All Data', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
             subtitle: const Text('Wipe all history and tenants'),
             onTap: () => _confirmReset(context),
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.indigo),
+            title: const Text('Logout', style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: const Text('Sign out of your account'),
+            onTap: () => authController.logout(),
           ),
         ],
       ),
