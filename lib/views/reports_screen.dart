@@ -124,7 +124,7 @@ class ReportsScreen extends StatelessWidget {
                         ),
                       ),
                       child: DropdownButtonHideUnderline(
-                        child: DropdownButton<int>(
+                        child: DropdownButton<String>(
                           value: controller.selectedMeterId.value,
                           isExpanded: true,
                           isDense: true,
@@ -135,7 +135,7 @@ class ReportsScreen extends StatelessWidget {
                             ),
                             ...controller.allMeters.map(
                               (m) => DropdownMenuItem(
-                                value: m['id'] as int,
+                                value: m['id'] as String,
                                 child: Text(m['meter_name'].toString()),
                               ),
                             ),

@@ -5,7 +5,7 @@ import '../db/database_helper.dart';
 
 class NewBillController extends GetxController {
   final meters = <Map<String, dynamic>>[].obs;
-  final currentReadings = <int, double>{}.obs; // meterId -> currentReading
+  final currentReadings = <String, double>{}.obs; // meterId -> currentReading
   final costPerUnit = 0.0.obs;
   final monthYearController = TextEditingController();
   final currentReadingController = TextEditingController();
@@ -37,14 +37,14 @@ class NewBillController extends GetxController {
     }
   }
 
-  void onMeterSelected(int meterId) {
+  void onMeterSelected(String meterId) {
     double val = currentReadings[meterId] ?? 0.0;
     double latest = meters.firstWhereOrNull((m) => m['id'] == meterId)?['latest_reading'] ?? 0.0;
     // Only prefill if the user has typed something different from latest reading
     currentReadingController.text = val > latest ? val.toString() : '';
   }
 
-  void setCurrentReading(int meterId, String value) {
+  void setCurrentReading(String meterId, String value) {
     if (value.isEmpty) return;
     currentReadings[meterId] = double.tryParse(value) ?? 0.0;
   }
@@ -66,10 +66,14 @@ class NewBillController extends GetxController {
     }
 
     // Validation
+    bool hasAnyReading = false;
     for (var meter in meters) {
-      int mId = meter['id'];
+      String mId = meter['id'];
+      if (!currentReadings.containsKey(mId)) continue;
+      
       double prevReading = meter['latest_reading'];
       double curReading = currentReadings[mId] ?? 0.0;
+      
       if (curReading < prevReading) {
         Get.snackbar(
           'Error', 
@@ -81,20 +85,37 @@ class NewBillController extends GetxController {
         );
         return;
       }
+      
+      if (curReading > prevReading) {
+        hasAnyReading = true;
+      }
+    }
+    
+    if (!hasAnyReading) {
+      Get.snackbar('Error', 'Please enter a new reading greater than previous', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red[100], colorText: Colors.red[900]);
+      return;
     }
 
     try {
-      int billId = await DatabaseHelper.instance.insertBillingHistory({
+      String billId = await DatabaseHelper.instance.insertBillingHistory({
         'month_year': monthYearController.text.trim(),
         'total_cost_per_unit': costPerUnit.value,
         'date_added': DateTime.now().millisecondsSinceEpoch,
       });
 
+      double totalAmount = 0.0;
+      double totalConsumption = 0.0;
+
       for (var meter in meters) {
-        int mId = meter['id'];
+        String mId = meter['id'];
+        if (!currentReadings.containsKey(mId)) continue;
+        
         double prevReading = meter['latest_reading'];
         double curReading = currentReadings[mId] ?? 0.0;
         double consumption = curReading - prevReading;
+        
+        if (consumption <= 0) continue;
+        
         double amount = consumption * costPerUnit.value;
 
         await DatabaseHelper.instance.insertBillingRecord({
@@ -105,11 +126,18 @@ class NewBillController extends GetxController {
           'consumption': consumption,
           'amount': amount,
           'created_at': DateTime.now().millisecondsSinceEpoch,
+          'meter_name': meter['meter_name'],
+          'month_year': monthYearController.text.trim(),
         });
+
+        totalAmount += amount;
+        totalConsumption += consumption;
 
         // Update latest reading in Meter
         await DatabaseHelper.instance.updateMeterLatestReading(mId, curReading);
       }
+      
+      await DatabaseHelper.instance.updateBillingHistoryTotals(billId, totalAmount, totalConsumption);
       
       final billMap = {
         'id': billId,

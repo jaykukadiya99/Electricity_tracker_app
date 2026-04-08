@@ -8,7 +8,7 @@ class MeterHistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Map<String, dynamic> args = Get.arguments ?? {};
-    final int meterId = args['meter_id'] ?? 0;
+    final String meterId = args['meter_id'] ?? '';
 
     final MeterHistoryController controller = Get.put(MeterHistoryController(meterId: meterId));
 

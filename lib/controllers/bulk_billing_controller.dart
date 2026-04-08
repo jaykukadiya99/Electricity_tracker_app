@@ -5,7 +5,7 @@ import '../db/database_helper.dart';
 
 class BulkBillingController extends GetxController {
   final meters = <Map<String, dynamic>>[].obs;
-  final readingsControllers = <int, TextEditingController>{};
+  final readingsControllers = <String, TextEditingController>{};
   final monthYearController = TextEditingController();
   final costPerUnitController = TextEditingController();
   final isLoading = false.obs;
@@ -59,7 +59,7 @@ class BulkBillingController extends GetxController {
     // Validation
     bool hasAnyReading = false;
     for (var meter in meters) {
-      int mId = meter['id'];
+      String mId = meter['id'];
       String text = readingsControllers[mId]?.text.trim() ?? '';
       if (text.isNotEmpty) {
         hasAnyReading = true;
@@ -88,14 +88,17 @@ class BulkBillingController extends GetxController {
 
     try {
       isLoading.value = true;
-      int billId = await DatabaseHelper.instance.insertBillingHistory({
+      String billId = await DatabaseHelper.instance.insertBillingHistory({
         'month_year': monthYearController.text.trim(),
         'total_cost_per_unit': costPerUnit,
         'date_added': DateTime.now().millisecondsSinceEpoch,
       });
 
+      double totalAmount = 0.0;
+      double totalConsumption = 0.0;
+
       for (var meter in meters) {
-        int mId = meter['id'];
+        String mId = meter['id'];
         String text = readingsControllers[mId]?.text.trim() ?? '';
         if (text.isNotEmpty) {
           double curReading = double.tryParse(text) ?? 0.0;
@@ -111,11 +114,18 @@ class BulkBillingController extends GetxController {
             'consumption': consumption,
             'amount': amount,
             'created_at': DateTime.now().millisecondsSinceEpoch,
+            'meter_name': meter['meter_name'],
+            'month_year': monthYearController.text.trim(),
           });
+
+          totalAmount += amount;
+          totalConsumption += consumption;
 
           await DatabaseHelper.instance.updateMeterLatestReading(mId, curReading);
         }
       }
+      
+      await DatabaseHelper.instance.updateBillingHistoryTotals(billId, totalAmount, totalConsumption);
       
       final billMap = {
         'id': billId,

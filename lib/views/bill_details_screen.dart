@@ -10,12 +10,18 @@ class BillDetailsScreen extends StatelessWidget {
     final Map<String, dynamic> args = Get.arguments ?? {};
     final int billId = args['billId'] ?? 0;
     final Map<String, dynamic>? billMap = args['bill'];
-    
-    final actualBillId = billMap != null ? billMap['id'] : billId;
-    final String monthYear = billMap != null ? billMap['month_year'] : (args['monthYear'] ?? 'Unknown Month');
-    final double globalCostPerUnit = billMap != null ? billMap['total_cost_per_unit'] : 0.0;
 
-    final BillDetailsController controller = Get.put(BillDetailsController(billId: actualBillId));
+    final actualBillId = billMap != null ? billMap['id'] : billId;
+    final String monthYear = billMap != null
+        ? billMap['month_year']
+        : (args['monthYear'] ?? 'Unknown Month');
+    final double globalCostPerUnit = billMap != null
+        ? billMap['total_cost_per_unit']
+        : 0.0;
+
+    final BillDetailsController controller = Get.put(
+      BillDetailsController(billId: actualBillId),
+    );
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -23,7 +29,43 @@ class BillDetailsScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: const BackButton(color: Colors.black),
-        title: const Text('Invoice Summary', style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFF0F172A), fontSize: 20)),
+        title: const Text(
+          'Invoice Summary',
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF0F172A),
+            fontSize: 20,
+          ),
+        ),
+        actions: [
+          Obx(() {
+            if (controller.isLoading.value || controller.records.isEmpty) {
+              return const SizedBox.shrink();
+            }
+
+            double totalAmountDue = 0.0;
+            double totalConsumption = 0.0;
+            for (var r in controller.records) {
+              totalAmountDue += r['amount'] ?? 0.0;
+              totalConsumption += r['consumption'] ?? 0.0;
+            }
+
+            return IconButton(
+              icon: const Icon(Icons.share, color: Color(0xFF1E3A8A)),
+              tooltip: 'Share as Image',
+              onPressed: () {
+                final shareWidget = _buildShareWidget(
+                  monthYear,
+                  totalAmountDue,
+                  totalConsumption,
+                  globalCostPerUnit,
+                  controller,
+                );
+                controller.shareBillAsImage(context, shareWidget);
+              },
+            );
+          }),
+        ],
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -31,7 +73,12 @@ class BillDetailsScreen extends StatelessWidget {
         }
 
         if (controller.records.isEmpty) {
-          return const Center(child: Text('No records found for this bill.', style: TextStyle(color: Colors.grey)));
+          return const Center(
+            child: Text(
+              'No records found for this bill.',
+              style: TextStyle(color: Colors.grey),
+            ),
+          );
         }
 
         double totalAmountDue = 0.0;
@@ -48,11 +95,21 @@ class BillDetailsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Title
-              Text('$monthYear Invoice', style: const TextStyle(color: Color(0xFF0F172A), fontSize: 28, fontWeight: FontWeight.w900)),
+              Text(
+                '$monthYear Invoice',
+                style: const TextStyle(
+                  color: Color(0xFF0F172A),
+                  fontSize: 28,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
               const SizedBox(height: 8),
-              Text('Billing Cycle: $monthYear', style: const TextStyle(color: Color(0xFF475569), fontSize: 13)),
+              Text(
+                'Billing Cycle: $monthYear',
+                style: const TextStyle(color: Color(0xFF475569), fontSize: 13),
+              ),
               const SizedBox(height: 24),
-              
+
               // Total Bill Summary Card
               Container(
                 padding: const EdgeInsets.all(24),
@@ -60,14 +117,33 @@ class BillDetailsScreen extends StatelessWidget {
                   color: const Color(0xFF1E3A8A),
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
-                    BoxShadow(color: Colors.black.withAlpha(20), blurRadius: 10, offset: const Offset(0, 4)),
+                    BoxShadow(
+                      color: Colors.black.withAlpha(20),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
                   ],
                 ),
                 child: Column(
                   children: [
-                    const Text('TOTAL AMOUNT DUE', style: TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                    const Text(
+                      'TOTAL AMOUNT DUE',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1,
+                      ),
+                    ),
                     const SizedBox(height: 8),
-                    Text('₹${totalAmountDue.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w900)),
+                    Text(
+                      '₹${totalAmountDue.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 36,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
                     const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -75,63 +151,133 @@ class BillDetailsScreen extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Total Consumption', style: TextStyle(color: Colors.white70, fontSize: 11)),
-                            Text('${totalConsumption.toStringAsFixed(1)} kWh', style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                            const Text(
+                              'Total Consumption',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 11,
+                              ),
+                            ),
+                            Text(
+                              '${totalConsumption.toStringAsFixed(1)} kWh',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ],
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            const Text('Cost per Unit', style: TextStyle(color: Colors.white70, fontSize: 11)),
-                            Text('₹${globalCostPerUnit.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+                            const Text(
+                              'Cost per Unit',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 11,
+                              ),
+                            ),
+                            Text(
+                              '₹${globalCostPerUnit.toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ],
-                        )
+                        ),
                       ],
-                    )
+                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 32),
-              
-              const Text('Meter-wise Usage Breakdown', style: TextStyle(color: Color(0xFF0F172A), fontSize: 16, fontWeight: FontWeight.w900)),
+
+              const Text(
+                'Meter-wise Usage Breakdown',
+                style: TextStyle(
+                  color: Color(0xFF0F172A),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
               const SizedBox(height: 16),
-              
+
               // Line Items
-              ...controller.records.where((r) => r['consumption'] > 0 || controller.records.length == 1).map((r) {
-                final mName = controller.meters[r['meter_id']] ?? 'Unknown Meter';
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(color: Colors.black.withAlpha(5), blurRadius: 4, offset: const Offset(0, 2)),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(mName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0F172A))),
-                          Text('₹${(r['amount'] ?? 0.0).toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: Color(0xFF1E3A8A))),
+              ...controller.records
+                  .where(
+                    (r) =>
+                        r['consumption'] > 0 || controller.records.length == 1,
+                  )
+                  .map((r) {
+                    final mName =
+                        controller.meters[r['meter_id']] ?? 'Unknown Meter';
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(5),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
                         ],
                       ),
-                      const Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Divider(color: Color(0xFFF1F5F9))),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: Column(
                         children: [
-                          _buildDetailColumn('Previous Reading', '${r['previous_reading']}'),
-                          _buildDetailColumn('Current Reading', '${r['current_reading']}'),
-                          _buildDetailColumn('Usage', '${r['consumption']} kWh', isHighlight: true),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                mName,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: Color(0xFF0F172A),
+                                ),
+                              ),
+                              Text(
+                                '₹${(r['amount'] ?? 0.0).toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 16,
+                                  color: Color(0xFF1E3A8A),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 8),
+                            child: Divider(color: Color(0xFFF1F5F9)),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              _buildDetailColumn(
+                                'Previous Reading',
+                                '${r['previous_reading']}',
+                              ),
+                              _buildDetailColumn(
+                                'Current Reading',
+                                '${r['current_reading']}',
+                              ),
+                              _buildDetailColumn(
+                                'Usage',
+                                '${r['consumption']} kWh',
+                                isHighlight: true,
+                              ),
+                            ],
+                          ),
                         ],
-                      )
-                    ],
-                  ),
-                );
-              }),
-              
+                      ),
+                    );
+                  }),
+
               const SizedBox(height: 40),
             ],
           ),
@@ -140,18 +286,130 @@ class BillDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailColumn(String label, String value, {bool isHighlight = false}) {
+  Widget _buildDetailColumn(
+    String label,
+    String value, {
+    bool isHighlight = false,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11)),
+        Text(
+          label,
+          style: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
+        ),
         const SizedBox(height: 4),
-        Text(value, style: TextStyle(
-          color: isHighlight ? const Color(0xFF059669) : const Color(0xFF0F172A),
-          fontWeight: isHighlight ? FontWeight.w900 : FontWeight.bold, 
-          fontSize: 13
-        )),
+        Text(
+          value,
+          style: TextStyle(
+            color: isHighlight
+                ? const Color(0xFF059669)
+                : const Color(0xFF0F172A),
+            fontWeight: isHighlight ? FontWeight.w900 : FontWeight.bold,
+            fontSize: 13,
+          ),
+        ),
       ],
+    );
+  }
+
+  Widget _buildShareWidget(
+    String monthYear,
+    double totalAmount,
+    double totalUsage,
+    double globalCost,
+    BillDetailsController controller,
+  ) {
+    return Material(
+      color: Colors.white,
+      child: Directionality(
+        textDirection: TextDirection.ltr,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          color: Colors.white,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Invoice: $monthYear',
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    'Total Amount: ₹${totalAmount.toStringAsFixed(2)}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Text(
+                    'Total Usage: ${totalUsage.toStringAsFixed(1)} kWh',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              DataTable(
+                headingTextStyle: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+                columnSpacing: 16,
+                horizontalMargin: 0,
+                showBottomBorder: true,
+                columns: const [
+                  DataColumn(label: Text('Meter')),
+                  DataColumn(label: Text('Prev')),
+                  DataColumn(label: Text('Cur')),
+                  DataColumn(label: Text('Usg')),
+                  DataColumn(label: Text('Amt(₹)')),
+                ],
+                rows: controller.records
+                    .where(
+                      (r) =>
+                          (r['consumption'] ?? 0) > 0 ||
+                          controller.records.length == 1,
+                    )
+                    .map((r) {
+                      final mName =
+                          controller.meters[r['meter_id']] ?? 'Unknown';
+                      return DataRow(
+                        cells: [
+                          DataCell(
+                            Text(
+                              mName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          DataCell(Text('${r['previous_reading']}')),
+                          DataCell(Text('${r['current_reading']}')),
+                          DataCell(Text('${r['consumption']}')),
+                          DataCell(
+                            Text((r['amount'] ?? 0.0).toStringAsFixed(2)),
+                          ),
+                        ],
+                      );
+                    })
+                    .toList(),
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

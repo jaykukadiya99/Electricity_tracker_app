@@ -11,7 +11,7 @@ class ReportsController extends GetxController {
   final lifetimeConsumption = 0.0.obs;
 
   // Filters
-  final selectedMeterId = Rx<int?>(null);
+  final selectedMeterId = Rx<String?>(null);
   final startDate = Rx<DateTime?>(null);
   final endDate = Rx<DateTime?>(null);
   final showLatestOnly = true.obs; // Default per user request
@@ -58,7 +58,7 @@ class ReportsController extends GetxController {
     isLoading.value = false;
   }
 
-  void setMeterFilter(int? meterId) {
+  void setMeterFilter(String? meterId) {
     selectedMeterId.value = meterId;
     loadReports();
   }

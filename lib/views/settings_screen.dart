@@ -15,17 +15,24 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         children: [
-          Obx(() => SwitchListTile(
-            title: const Text('Dark Mode'),
-            subtitle: const Text('Toggle between light and dark themes'),
-            value: themeController.isDarkMode,
-            onChanged: (val) => themeController.toggleTheme(),
-            secondary: Icon(themeController.isDarkMode ? Icons.dark_mode : Icons.light_mode),
-          )),
+          Obx(
+            () => SwitchListTile(
+              title: const Text('Dark Mode'),
+              subtitle: const Text('Toggle between light and dark themes'),
+              value: themeController.isDarkMode,
+              onChanged: (val) => themeController.toggleTheme(),
+              secondary: Icon(
+                themeController.isDarkMode ? Icons.dark_mode : Icons.light_mode,
+              ),
+            ),
+          ),
           const Divider(),
           const Padding(
             padding: EdgeInsets.all(16.0),
-            child: Text('Coming Soon', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            child: Text(
+              'Coming Soon',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           ),
           const ListTile(
             leading: Icon(Icons.picture_as_pdf, color: Colors.red),
@@ -45,14 +52,20 @@ class SettingsScreen extends StatelessWidget {
           const Divider(),
           ListTile(
             leading: const Icon(Icons.delete_forever, color: Colors.red),
-            title: const Text('Reset All Data', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            title: const Text(
+              'Reset All Data',
+              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+            ),
             subtitle: const Text('Wipe all history and tenants'),
             onTap: () => _confirmReset(context),
           ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.indigo),
-            title: const Text('Logout', style: TextStyle(fontWeight: FontWeight.bold)),
+            title: const Text(
+              'Logout',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             subtitle: const Text('Sign out of your account'),
             onTap: () => authController.logout(),
           ),
@@ -66,7 +79,9 @@ class SettingsScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Reset Everything?'),
-        content: const Text('This will permanently delete all your tenants and billing history. This action cannot be undone.'),
+        content: const Text(
+          'This will permanently delete all your tenants and billing history. This action cannot be undone.',
+        ),
         actions: [
           TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
           TextButton(

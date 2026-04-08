@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import '../db/database_helper.dart';
 
 class MeterHistoryController extends GetxController {
-  final int meterId;
+  final String meterId;
   final isLoading = true.obs;
   
   final meterData = <String, dynamic>{}.obs;

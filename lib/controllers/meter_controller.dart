@@ -27,12 +27,12 @@ class MeterController extends GetxController {
     await loadMeters();
   }
 
-  Future<void> renameMeter(int id, String newName) async {
+  Future<void> renameMeter(String id, String newName) async {
     await DatabaseHelper.instance.updateMeterName(id, newName);
     await loadMeters();
   }
   
-  Future<void> deleteMeter(int id) async {
+  Future<void> deleteMeter(String id) async {
     await DatabaseHelper.instance.deleteMeter(id);
     await loadMeters();
   }

@@ -186,7 +186,7 @@ class BulkBillingScreen extends StatelessWidget {
                       itemCount: controller.meters.length,
                       itemBuilder: (context, index) {
                         final meter = controller.meters[index];
-                        final mId = meter['id'] as int;
+                        final mId = meter['id'] as String;
                         final prevReading = meter['latest_reading'] ?? 0.0;
 
                         return Container(

@@ -6,12 +6,12 @@ class NewBillScreen extends StatelessWidget {
   final NewBillController controller = Get.put(NewBillController());
 
   // Local state for UI dropdown selection
-  late final Rx<int?> selectedMeterId;
+  late final Rx<String?> selectedMeterId;
 
   NewBillScreen({super.key}) {
     final Map<String, dynamic> args = Get.arguments ?? {};
-    final int? mId = args['meter_id'];
-    selectedMeterId = Rx<int?>(mId);
+    final String? mId = args['meter_id'];
+    selectedMeterId = Rx<String?>(mId);
   }
 
   @override
@@ -153,12 +153,12 @@ class NewBillScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: DropdownButtonHideUnderline(
-                        child: DropdownButton<int>(
+                        child: DropdownButton<String>(
                           isExpanded: true,
                           hint: const Text('Choose a meter...'),
                           value: selectedMeterId.value,
                           items: controller.meters.map((m) {
-                            return DropdownMenuItem<int>(
+                            return DropdownMenuItem<String>(
                               value: m['id'],
                               child: Text(
                                 m['meter_name'],

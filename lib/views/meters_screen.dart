@@ -127,7 +127,7 @@ class MetersScreen extends StatelessWidget {
     );
   }
 
-  void _showRenameDialog(BuildContext context, int id, String currentName) {
+  void _showRenameDialog(BuildContext context, String id, String currentName) {
     final nameController = TextEditingController(text: currentName);
     showDialog(
       context: context,
@@ -153,7 +153,7 @@ class MetersScreen extends StatelessWidget {
     );
   }
   
-  void _confirmDelete(BuildContext context, int id, String name) {
+  void _confirmDelete(BuildContext context, String id, String name) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
