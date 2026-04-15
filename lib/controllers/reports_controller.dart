@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import '../db/database_helper.dart';
+import '../services/pdf_service.dart';
 
 class ReportsController extends GetxController {
   final filteredReports = <Map<String, dynamic>>[].obs;
@@ -80,5 +81,28 @@ class ReportsController extends GetxController {
     endDate.value = null;
     showLatestOnly.value = true;
     loadReports();
+  }
+
+  Future<void> exportToPdf() async {
+    if (filteredReports.isEmpty) {
+      Get.snackbar('Export Failed', 'No reports match your filters to export.');
+      return;
+    }
+
+    final headers = ['Date', 'Meter', 'Prev', 'Current', 'Usage', 'Amount'];
+    final data = filteredReports.map((r) => [
+      r['month_year']?.toString() ?? '',
+      r['meter_name']?.toString() ?? '',
+      r['previous_reading']?.toString() ?? '0.0',
+      r['current_reading']?.toString() ?? '0.0',
+      '${r['consumption']} kWh',
+      'Rs. ${(r['amount'] ?? 0.0).toStringAsFixed(2)}',
+    ]).toList();
+
+    await PdfService.generateAndShareReport(
+      title: 'Electricity Analytics Report',
+      headers: headers,
+      data: data,
+    );
   }
 }

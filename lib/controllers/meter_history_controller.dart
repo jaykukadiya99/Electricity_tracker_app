@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../db/database_helper.dart';
+import '../services/pdf_service.dart';
 
 class MeterHistoryController extends GetxController {
   final String meterId;
@@ -98,6 +99,32 @@ class MeterHistoryController extends GetxController {
           );
         }
       },
+    );
+  }
+
+  Future<void> exportToPdf() async {
+    if (historyRecords.isEmpty) {
+      Get.snackbar('Export Failed', 'No history records to export.');
+      return;
+    }
+
+    final headers = ['Month/Year', 'Prev', 'Current', 'Usage', 'Amount'];
+    final data = historyRecords
+        .map(
+          (r) => [
+            r['month_year']?.toString() ?? '',
+            r['previous_reading']?.toString() ?? '0.0',
+            r['current_reading']?.toString() ?? '0.0',
+            '${r['consumption']} kWh',
+            'Rs. ${(r['amount'] ?? 0.0).toStringAsFixed(2)}',
+          ],
+        )
+        .toList();
+
+    await PdfService.generateAndShareReport(
+      title: '${meterData['meter_name'] ?? 'Meter'}_History',
+      headers: headers,
+      data: data,
     );
   }
 }

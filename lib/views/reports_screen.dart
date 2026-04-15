@@ -27,6 +27,17 @@ class ReportsScreen extends StatelessWidget {
         backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
         iconTheme: IconThemeData(color: colorScheme.onSurface),
+        actions: [
+          Obx(() => controller.isLoading.value
+              ? const SizedBox(
+                  width: 48,
+                  child: Center(child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))))
+              : IconButton(
+                  icon: const Icon(Icons.picture_as_pdf_outlined),
+                  tooltip: 'Export as PDF',
+                  onPressed: () => controller.exportToPdf(),
+                )),
+        ],
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
