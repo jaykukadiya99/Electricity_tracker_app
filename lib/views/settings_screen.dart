@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/theme_controller.dart';
 import '../controllers/auth_controller.dart';
+import '../controllers/settings_controller.dart';
 import '../db/database_helper.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -11,6 +12,7 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeController themeController = Get.find<ThemeController>();
     final AuthController authController = Get.find<AuthController>();
+    final SettingsController settingsController = Get.find<SettingsController>();
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
@@ -41,6 +43,21 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
           ),
+          const Divider(),
+          Obx(() => ListTile(
+            leading: const Icon(Icons.electrical_services),
+            title: const Text(
+              'Default Unit Price',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              settingsController.defaultUnitPrice.value > 0
+                  ? 'Rs. ${settingsController.defaultUnitPrice.value}/kWh  (tap to change)'
+                  : 'Not set — tap to configure',
+            ),
+            trailing: const Icon(Icons.edit_outlined, size: 18),
+            onTap: () => settingsController.showEditPriceDialog(context),
+          )),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.delete_forever, color: Colors.red),

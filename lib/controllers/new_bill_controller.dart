@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../db/database_helper.dart';
+import '../controllers/settings_controller.dart';
 
 class NewBillController extends GetxController {
   final meters = <Map<String, dynamic>>[].obs;
@@ -9,12 +10,19 @@ class NewBillController extends GetxController {
   final costPerUnit = 0.0.obs;
   final monthYearController = TextEditingController();
   final currentReadingController = TextEditingController();
+  final costPerUnitController = TextEditingController();
   final isLoading = false.obs;
   
   @override
   void onInit() {
     super.onInit();
     monthYearController.text = DateFormat('dd MMM yyyy').format(DateTime.now());
+    // Pre-fill cost per unit from saved default
+    final settingsCtrl = Get.find<SettingsController>();
+    if (settingsCtrl.defaultUnitPrice.value > 0) {
+      costPerUnit.value = settingsCtrl.defaultUnitPrice.value;
+      costPerUnitController.text = settingsCtrl.defaultUnitPrice.value.toString();
+    }
     loadMeters();
   }
 

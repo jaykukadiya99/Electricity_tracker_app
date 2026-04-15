@@ -4,6 +4,7 @@ import 'controllers/theme_controller.dart';
 import 'controllers/app_controller.dart';
 import 'controllers/auth_controller.dart';
 import 'controllers/auth_middleware.dart';
+import 'controllers/settings_controller.dart';
 import 'theme/app_theme.dart';
 import 'views/splash_screen.dart';
 import 'views/meter_setup_screen.dart';
@@ -25,6 +26,7 @@ void main() async {
   Get.put(ThemeController());
   Get.put(AppController());
   Get.put(AuthController());
+  Get.put(SettingsController());
 
   runApp(const MyApp());
 }

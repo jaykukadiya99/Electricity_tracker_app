@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/new_bill_controller.dart';
+import '../controllers/settings_controller.dart';
 
 class NewBillScreen extends StatelessWidget {
   final NewBillController controller = Get.put(NewBillController());
@@ -212,6 +213,7 @@ class NewBillScreen extends StatelessWidget {
                         color: colorScheme.onSurface,
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      textInputAction: TextInputAction.next,
                       onChanged: (val) {
                         if (selectedMeterId.value != null) {
                           controller.setCurrentReading(selectedMeterId.value!, val);
@@ -239,6 +241,7 @@ class NewBillScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     TextField(
+                      controller: controller.costPerUnitController,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -252,17 +255,23 @@ class NewBillScreen extends StatelessWidget {
                         color: colorScheme.onSurface,
                       ),
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      textInputAction: TextInputAction.done,
                       onChanged: controller.setCostPerUnit,
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      'Standard Rate: ₹8.00',
-                      style: TextStyle(
-                        color: colorScheme.onSurface.withAlpha(120),
-                        fontSize: 11,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
+                    Obx(() {
+                      final settingsCtrl = Get.find<SettingsController>();
+                      return Text(
+                        settingsCtrl.defaultUnitPrice.value > 0
+                            ? 'Default: Rs. ${settingsCtrl.defaultUnitPrice.value}/kWh'
+                            : 'No default set — configure in Settings',
+                        style: TextStyle(
+                          color: colorScheme.onSurface.withAlpha(120),
+                          fontSize: 11,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      );
+                    }),
                     const SizedBox(height: 24),
 
                     SizedBox(

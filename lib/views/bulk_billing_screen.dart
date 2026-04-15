@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/bulk_billing_controller.dart';
+import '../controllers/settings_controller.dart';
 
 class BulkBillingScreen extends StatelessWidget {
   final BulkBillingController controller = Get.put(BulkBillingController());
@@ -181,6 +182,20 @@ class BulkBillingScreen extends StatelessWidget {
                             ),
                             textInputAction: TextInputAction.next,
                           ),
+                          const SizedBox(height: 6),
+                          Obx(() {
+                            final settingsCtrl = Get.find<SettingsController>();
+                            return Text(
+                              settingsCtrl.defaultUnitPrice.value > 0
+                                  ? 'Default: Rs. ${settingsCtrl.defaultUnitPrice.value}/kWh'
+                                  : 'No default set \u2014 configure in Settings',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface.withAlpha(120),
+                                fontSize: 11,
+                                fontStyle: FontStyle.italic,
+                              ),
+                            );
+                          }),
                         ],
                       ),
                     ),
