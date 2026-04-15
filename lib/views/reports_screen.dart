@@ -10,19 +10,23 @@ class ReportsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Reports & Statements',
           style: TextStyle(
-            color: Color(0xFF0F172A),
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Color(0xFF0F172A)),
+        iconTheme: IconThemeData(color: colorScheme.onSurface),
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -34,7 +38,7 @@ class ReportsScreen extends StatelessWidget {
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
             children: [
-              // Lifetime Summary Card
+              // Lifetime Summary Card (always dark gradient)
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -64,10 +68,7 @@ class ReportsScreen extends StatelessWidget {
                           children: [
                             const Text(
                               'Total Revenue',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
-                              ),
+                              style: TextStyle(color: Colors.white, fontSize: 13),
                             ),
                             const SizedBox(height: 4),
                             Text(
@@ -85,10 +86,7 @@ class ReportsScreen extends StatelessWidget {
                           children: [
                             const Text(
                               'Total Energy',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 13,
-                              ),
+                              style: TextStyle(color: Colors.white, fontSize: 13),
                             ),
                             const SizedBox(height: 4),
                             Text(
@@ -107,6 +105,7 @@ class ReportsScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 32),
+
               // Filters
               Row(
                 children: [
@@ -128,15 +127,22 @@ class ReportsScreen extends StatelessWidget {
                           value: controller.selectedMeterId.value,
                           isExpanded: true,
                           isDense: true,
+                          dropdownColor: theme.cardColor,
                           items: [
-                            const DropdownMenuItem(
+                            DropdownMenuItem(
                               value: null,
-                              child: Text('All Meters'),
+                              child: Text(
+                                'All Meters',
+                                style: TextStyle(color: colorScheme.onSurface),
+                              ),
                             ),
                             ...controller.allMeters.map(
                               (m) => DropdownMenuItem(
                                 value: m['id'] as String,
-                                child: Text(m['meter_name'].toString()),
+                                child: Text(
+                                  m['meter_name'].toString(),
+                                  style: TextStyle(color: colorScheme.onSurface),
+                                ),
                               ),
                             ),
                           ],
@@ -150,22 +156,24 @@ class ReportsScreen extends StatelessWidget {
                     flex: 3,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: const Color(0xFF0F172A),
+                        backgroundColor: theme.cardColor,
+                        foregroundColor: colorScheme.onSurface,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
-                          side: const BorderSide(color: Colors.grey, width: 0),
+                          side: BorderSide(
+                            color: isDark
+                                ? const Color(0xFF334155)
+                                : Colors.grey.withAlpha(80),
+                          ),
                         ),
-                        elevation: 1,
+                        elevation: isDark ? 0 : 1,
                       ),
                       onPressed: () async {
                         final range = await showDateRangePicker(
                           context: context,
                           firstDate: DateTime(2000),
-                          lastDate: DateTime.now().add(
-                            const Duration(days: 365),
-                          ),
+                          lastDate: DateTime.now().add(const Duration(days: 365)),
                           initialDateRange: controller.startDate.value != null
                               ? DateTimeRange(
                                   start: controller.startDate.value!,
@@ -200,15 +208,15 @@ class ReportsScreen extends StatelessWidget {
                       Obx(
                         () => Checkbox(
                           value: controller.showLatestOnly.value,
-                          activeColor: const Color(0xFF1E3A8A),
+                          activeColor: colorScheme.primary,
                           onChanged: (val) =>
                               controller.toggleLatestOnly(val ?? false),
                         ),
                       ),
-                      const Text(
+                      Text(
                         'Latest entry per meter',
                         style: TextStyle(
-                          color: Color(0xFF0F172A),
+                          color: colorScheme.onSurface,
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                         ),
@@ -227,10 +235,10 @@ class ReportsScreen extends StatelessWidget {
               ),
 
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 'Detailed Ledger',
                 style: TextStyle(
-                  color: Color(0xFF0F172A),
+                  color: colorScheme.onSurface,
                   fontSize: 18,
                   fontWeight: FontWeight.w900,
                 ),
@@ -238,35 +246,42 @@ class ReportsScreen extends StatelessWidget {
               const SizedBox(height: 16),
 
               if (controller.filteredReports.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(32),
+                Padding(
+                  padding: const EdgeInsets.all(32),
                   child: Center(
                     child: Text(
                       'No records match the selected filters.',
-                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                      style: TextStyle(
+                        color: colorScheme.onSurface.withAlpha(140),
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 )
               else
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: theme.cardColor,
                     borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withAlpha(5),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                    border: isDark ? Border.all(color: const Color(0xFF334155)) : null,
+                    boxShadow: isDark
+                        ? null
+                        : [
+                            BoxShadow(
+                              color: Colors.black.withAlpha(8),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                   ),
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: DataTable(
-                      headingTextStyle: const TextStyle(
+                      headingTextStyle: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF0F172A),
+                        color: colorScheme.onSurface,
                       ),
+                      dataTextStyle: TextStyle(color: colorScheme.onSurface),
                       dataRowMinHeight: 40,
                       dataRowMaxHeight: 50,
                       columnSpacing: 24,
@@ -284,9 +299,7 @@ class ReportsScreen extends StatelessWidget {
                         );
                         return DataRow(
                           cells: [
-                            DataCell(
-                              Text(DateFormat('MMM dd, yy').format(date)),
-                            ),
+                            DataCell(Text(DateFormat('MMM dd, yy').format(date))),
                             DataCell(Text(report['meter_name'].toString())),
                             DataCell(
                               Text(
@@ -302,17 +315,14 @@ class ReportsScreen extends StatelessWidget {
                             ),
                             DataCell(
                               Text(
-                                (report['consumption'] as num).toStringAsFixed(
-                                  1,
-                                ),
+                                (report['consumption'] as num)
+                                    .toStringAsFixed(1),
                               ),
                             ),
                             DataCell(
                               Text(
                                 (report['amount'] as num).toStringAsFixed(2),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: const TextStyle(fontWeight: FontWeight.bold),
                               ),
                             ),
                           ],

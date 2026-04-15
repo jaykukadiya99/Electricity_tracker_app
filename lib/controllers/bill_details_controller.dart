@@ -34,7 +34,10 @@ class BillDetailsController extends GetxController {
     isLoading.value = false;
   }
 
-  Future<void> shareBillAsImage(BuildContext context, Widget shareWidget) async {
+  Future<void> shareBillAsImage(
+    BuildContext context,
+    Widget shareWidget,
+  ) async {
     try {
       // Capture the widget directly to memory instead of rendering it on screen
       final bytes = await screenshotController.captureFromWidget(
@@ -51,15 +54,17 @@ class BillDetailsController extends GetxController {
 
       // Share it
       // ignore: deprecated_member_use
-      await Share.shareXFiles(
-        [XFile(imagePath)],
-        text: 'Monthly Utility Invoice Breakdown',
-      );
+      await Share.shareXFiles([
+        XFile(imagePath),
+      ], text: 'Monthly Bill Breakdown');
     } catch (e) {
-      Get.snackbar('Error', 'Failed to generate image: $e', 
-          snackPosition: SnackPosition.BOTTOM, 
-          backgroundColor: Colors.red[100], 
-          colorText: Colors.red[900]);
+      Get.snackbar(
+        'Error',
+        'Failed to generate image: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[900],
+      );
     }
   }
 }

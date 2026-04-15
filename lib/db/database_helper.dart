@@ -194,6 +194,47 @@ class DatabaseHelper {
     }
   }
 
+  Future<void> deleteBillingRecord(String recordId, String meterId, String billId, double amount, double consumption) async {
+    // 1. Delete the specific record
+    await _billingRecordsRef.doc(recordId).delete();
+    
+    // 2. Fetch remaining records for the meter to accurately determine the latest reading
+    final list = await getMeterHistory(meterId);
+    
+    // 3. Update meter latest reading (fallback to initial if history is emptied)
+    final meter = await getMeter(meterId);
+    if (meter != null) {
+      double latestReading = (meter['opening_reading'] as num?)?.toDouble() ?? 0.0;
+      if (list.isNotEmpty) {
+        latestReading = (list.first['current_reading'] as num).toDouble();
+      }
+      await updateMeterLatestReading(meterId, latestReading);
+    }
+    
+    // 4. Update the umbrella billingHistory statement totals
+    final remainingInBill = await getBillingRecords(billId);
+    if (remainingInBill.isEmpty) {
+        // If no records remain for that specific monthly bill, scrub the bill
+        await _billingHistoryRef.doc(billId).delete();
+    } else {
+        // Otherwise, subtract the consumption and amount
+        final billDoc = await _billingHistoryRef.doc(billId).get();
+        if (billDoc.exists) {
+            final data = billDoc.data() as Map<String, dynamic>;
+            double tAmount = (data['total_amount'] as num?)?.toDouble() ?? 0.0;
+            double tCons = (data['total_consumption'] as num?)?.toDouble() ?? 0.0;
+            
+            tAmount -= amount;
+            tCons -= consumption;
+            
+            await _billingHistoryRef.doc(billId).update({
+                'total_amount': tAmount < 0 ? 0 : tAmount,
+                'total_consumption': tCons < 0 ? 0 : tCons
+            });
+        }
+    }
+  }
+
   Future<void> clearAllData() async {
     for (var col in [_metersRef, _billingHistoryRef, _billingRecordsRef]) {
         final snaps = await col.get();

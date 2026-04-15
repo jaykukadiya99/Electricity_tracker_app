@@ -16,21 +16,25 @@ class NewBillScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
-        leading: const BackButton(color: Colors.black),
-        title: const Row(
+        leading: BackButton(color: colorScheme.onSurface),
+        title: Row(
           children: [
-            Icon(Icons.bar_chart, color: Color(0xFF1E3A8A)),
-            SizedBox(width: 8),
+            Icon(Icons.bar_chart, color: colorScheme.primary),
+            const SizedBox(width: 8),
             Text(
               'UtilityFlow',
               style: TextStyle(
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF0F172A),
+                color: colorScheme.onSurface,
                 fontSize: 20,
               ),
             ),
@@ -38,10 +42,7 @@ class NewBillScreen extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: const Icon(
-              Icons.notifications_none,
-              color: Color(0xFF475569),
-            ),
+            icon: Icon(Icons.notifications_none, color: colorScheme.onSurface.withAlpha(180)),
             onPressed: () {},
           ),
         ],
@@ -65,20 +66,20 @@ class NewBillScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
+              Text(
                 'DATA ENTRY',
                 style: TextStyle(
-                  color: Color(0xFF64748B),
+                  color: colorScheme.onSurface.withAlpha(130),
                   fontWeight: FontWeight.bold,
                   fontSize: 10,
                   letterSpacing: 1.5,
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
+              Text(
                 'Monthly Reading',
                 style: TextStyle(
-                  color: Color(0xFF0F172A),
+                  color: colorScheme.onSurface,
                   fontSize: 28,
                   fontWeight: FontWeight.w900,
                 ),
@@ -89,25 +90,28 @@ class NewBillScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: theme.cardColor,
                   borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(5),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+                  border: isDark ? Border.all(color: const Color(0xFF334155)) : null,
+                  boxShadow: isDark
+                      ? null
+                      : [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(8),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Billing Cycle (Date)',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
-                        color: Color(0xFF0F172A),
+                        color: colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -121,49 +125,54 @@ class NewBillScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(12),
                               borderSide: BorderSide.none,
                             ),
-                            filled: true,
-                            fillColor: const Color(0xFFF1F5F9),
-                            prefixIcon: const Icon(
+                            prefixIcon: Icon(
                               Icons.calendar_today,
-                              color: Color(0xFF64748B),
+                              color: colorScheme.onSurface.withAlpha(140),
                             ),
                           ),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
+                            color: colorScheme.onSurface,
                           ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 20),
 
-                    const Text(
+                    Text(
                       'Select Meter',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
-                        color: Color(0xFF0F172A),
+                        color: colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
+                        color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
                         borderRadius: BorderRadius.circular(12),
+                        border: isDark ? Border.all(color: const Color(0xFF334155)) : null,
                       ),
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton<String>(
                           isExpanded: true,
-                          hint: const Text('Choose a meter...'),
+                          hint: Text(
+                            'Choose a meter...',
+                            style: TextStyle(color: colorScheme.onSurface.withAlpha(140)),
+                          ),
                           value: selectedMeterId.value,
+                          dropdownColor: theme.cardColor,
                           items: controller.meters.map((m) {
                             return DropdownMenuItem<String>(
                               value: m['id'],
                               child: Text(
                                 m['meter_name'],
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.w600,
+                                  color: colorScheme.onSurface,
                                 ),
                               ),
                             );
@@ -179,12 +188,12 @@ class NewBillScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
 
-                    const Text(
+                    Text(
                       'Current Reading (kWh)',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
-                        color: Color(0xFF0F172A),
+                        color: colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -195,43 +204,37 @@ class NewBillScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
                         ),
-                        filled: true,
-                        fillColor: const Color(0xFFF1F5F9),
                         hintText: '0.00',
                       ),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
+                        color: colorScheme.onSurface,
                       ),
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       onChanged: (val) {
                         if (selectedMeterId.value != null) {
-                          controller.setCurrentReading(
-                            selectedMeterId.value!,
-                            val,
-                          );
+                          controller.setCurrentReading(selectedMeterId.value!, val);
                         }
                       },
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'Previous: $latestReading kWh',
-                      style: const TextStyle(
-                        color: Colors.grey,
+                      style: TextStyle(
+                        color: colorScheme.onSurface.withAlpha(120),
                         fontSize: 11,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
                     const SizedBox(height: 20),
 
-                    const Text(
+                    Text(
                       'Cost per Unit (₹)',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
-                        color: Color(0xFF0F172A),
+                        color: colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -241,24 +244,21 @@ class NewBillScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
                         ),
-                        filled: true,
-                        fillColor: const Color(0xFFF1F5F9),
                         hintText: 'e.g. 8.5',
                       ),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
+                        color: colorScheme.onSurface,
                       ),
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       onChanged: controller.setCostPerUnit,
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       'Standard Rate: ₹8.00',
                       style: TextStyle(
-                        color: Colors.grey,
+                        color: colorScheme.onSurface.withAlpha(120),
                         fontSize: 11,
                         fontStyle: FontStyle.italic,
                       ),
@@ -277,8 +277,6 @@ class NewBillScreen extends StatelessWidget {
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1E3A8A), // Dark blue
-                          foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),

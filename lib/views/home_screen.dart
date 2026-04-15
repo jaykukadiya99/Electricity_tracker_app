@@ -9,29 +9,37 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC), // Faint grey background
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
         title: Row(
           children: [
-            Icon(Icons.bar_chart, color: Theme.of(context).primaryColor),
+            Icon(Icons.bar_chart, color: colorScheme.primary),
             const SizedBox(width: 8),
-            const Text(
+            Text(
               'ElecTrack',
               style: TextStyle(
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF0F172A),
+                color: theme.textTheme.titleLarge?.color ?? colorScheme.onSurface,
                 fontSize: 20,
               ),
             ),
           ],
         ),
         actions: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child: CircleAvatar(radius: 16, child: Icon(Icons.person)),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: CircleAvatar(
+              radius: 16,
+              backgroundColor: colorScheme.primary.withAlpha(30),
+              child: Icon(Icons.person, color: colorScheme.primary, size: 18),
+            ),
           ),
         ],
       ),
@@ -51,23 +59,26 @@ class HomeScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: theme.cardColor,
                     borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withAlpha(5),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                    border: isDark ? Border.all(color: const Color(0xFF334155)) : null,
+                    boxShadow: isDark
+                        ? null
+                        : [
+                            BoxShadow(
+                              color: Colors.black.withAlpha(8),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'TOTAL BILLED PERIOD',
                         style: TextStyle(
-                          color: Color(0xFF64748B),
+                          color: colorScheme.onSurface.withAlpha(130),
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
                           letterSpacing: 1.2,
@@ -76,8 +87,8 @@ class HomeScreen extends StatelessWidget {
                       const SizedBox(height: 8),
                       Text(
                         '₹${controller.totalBilled.value.toStringAsFixed(2)}',
-                        style: const TextStyle(
-                          color: Color(0xFF0F172A),
+                        style: TextStyle(
+                          color: colorScheme.onSurface,
                           fontSize: 36,
                           fontWeight: FontWeight.w900,
                         ),
@@ -87,11 +98,11 @@ class HomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
 
-                // Consumption Deep Blue Card
+                // Consumption Deep Blue Card (intentionally always dark)
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0B213E), // Dark Navy
+                    color: const Color(0xFF0B213E),
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: Column(
@@ -118,9 +129,7 @@ class HomeScreen extends StatelessWidget {
                         textBaseline: TextBaseline.alphabetic,
                         children: [
                           Text(
-                            controller.totalConsumption.value.toStringAsFixed(
-                              1,
-                            ),
+                            controller.totalConsumption.value.toStringAsFixed(1),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 32,
@@ -150,10 +159,10 @@ class HomeScreen extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Meter Analytics',
                           style: TextStyle(
-                            color: Color(0xFF0F172A),
+                            color: colorScheme.onSurface,
                             fontSize: 20,
                             fontWeight: FontWeight.w900,
                           ),
@@ -162,7 +171,7 @@ class HomeScreen extends StatelessWidget {
                         Text(
                           'Individual consumption and billing status',
                           style: TextStyle(
-                            color: Colors.grey[600],
+                            color: colorScheme.onSurface.withAlpha(140),
                             fontSize: 13,
                           ),
                         ),
@@ -174,12 +183,12 @@ class HomeScreen extends StatelessWidget {
 
                 // Meter List
                 controller.meters.isEmpty
-                    ? const Padding(
-                        padding: EdgeInsets.all(32.0),
+                    ? Padding(
+                        padding: const EdgeInsets.all(32.0),
                         child: Center(
                           child: Text(
                             "No meters configured yet.",
-                            style: TextStyle(color: Colors.grey),
+                            style: TextStyle(color: colorScheme.onSurface.withAlpha(100)),
                           ),
                         ),
                       )
@@ -189,9 +198,8 @@ class HomeScreen extends StatelessWidget {
                         itemCount: controller.meters.length,
                         itemBuilder: (context, index) {
                           final meter = controller.meters[index];
-                          String status = 'ACTIVE';
-                          Color statusColor = const Color(0xFF059669);
-                          Color statusBg = statusColor.withAlpha(20);
+                          const Color statusColor = Color(0xFF059669);
+                          final Color statusBg = statusColor.withAlpha(20);
 
                           return GestureDetector(
                             onTap: () {
@@ -204,53 +212,56 @@ class HomeScreen extends StatelessWidget {
                               margin: const EdgeInsets.only(bottom: 16),
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: theme.cardColor,
                                 borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withAlpha(5),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
+                                border: isDark ? Border.all(color: const Color(0xFF334155)) : null,
+                                boxShadow: isDark
+                                    ? null
+                                    : [
+                                        BoxShadow(
+                                          color: Colors.black.withAlpha(8),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
                               ),
                               child: Column(
                                 children: [
                                   Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Row(
                                         children: [
                                           Container(
                                             padding: const EdgeInsets.all(10),
                                             decoration: BoxDecoration(
-                                              color: const Color(0xFFF1F5F9),
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
+                                              color: isDark
+                                                  ? const Color(0xFF334155)
+                                                  : const Color(0xFFF1F5F9),
+                                              borderRadius: BorderRadius.circular(10),
                                             ),
-                                            child: const Icon(
+                                            child: Icon(
                                               Icons.business,
-                                              color: Color(0xFF0F172A),
+                                              color: colorScheme.onSurface,
                                               size: 20,
                                             ),
                                           ),
                                           const SizedBox(width: 12),
                                           Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               Text(
                                                 meter['meter_name'],
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                   fontSize: 16,
+                                                  color: colorScheme.onSurface,
                                                 ),
                                               ),
                                               Text(
                                                 'Tracked Unit',
                                                 style: TextStyle(
-                                                  color: Colors.grey[500],
+                                                  color: colorScheme.onSurface.withAlpha(120),
                                                   fontSize: 12,
                                                 ),
                                               ),
@@ -265,12 +276,10 @@ class HomeScreen extends StatelessWidget {
                                         ),
                                         decoration: BoxDecoration(
                                           color: statusBg,
-                                          borderRadius: BorderRadius.circular(
-                                            6,
-                                          ),
+                                          borderRadius: BorderRadius.circular(6),
                                         ),
-                                        child: Text(
-                                          status,
+                                        child: const Text(
+                                          'ACTIVE',
                                           style: TextStyle(
                                             color: statusColor,
                                             fontWeight: FontWeight.bold,
@@ -283,21 +292,20 @@ class HomeScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 20),
                                   Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         'Latest Reading',
                                         style: TextStyle(
-                                          color: Colors.grey[600],
+                                          color: colorScheme.onSurface.withAlpha(140),
                                           fontSize: 13,
                                         ),
                                       ),
                                       Text(
                                         '${meter['latest_reading']} kWh',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontWeight: FontWeight.w900,
-                                          color: Color(0xFF1E3A8A),
+                                          color: colorScheme.primary,
                                           fontSize: 14,
                                         ),
                                       ),
@@ -310,9 +318,7 @@ class HomeScreen extends StatelessWidget {
                         },
                       ),
 
-                const SizedBox(
-                  height: 80,
-                ), // Padding for the floating action button to not block content
+                const SizedBox(height: 80),
               ],
             ),
           ),
@@ -320,94 +326,110 @@ class HomeScreen extends StatelessWidget {
       }),
       floatingActionButton: FloatingActionButton(
         heroTag: 'home_fab',
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: colorScheme.primary,
         elevation: 4,
         onPressed: () {
           showModalBottomSheet(
             context: context,
             backgroundColor: Colors.transparent,
-            builder: (context) => Container(
-              padding: const EdgeInsets.all(24),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(24),
-                  topRight: Radius.circular(24),
+            builder: (context) {
+              final sheetTheme = Theme.of(context);
+              return Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: sheetTheme.cardColor,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(24),
+                    topRight: Radius.circular(24),
+                  ),
                 ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'Select Data Entry Method',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 18,
-                      color: Color(0xFF0F172A),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ListTile(
-                    leading: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(Icons.person, color: Color(0xFF1E3A8A)),
-                    ),
-                    title: const Text(
-                      'Single Meter Entry',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: const Text(
-                      'Add usage for one specific meter',
-                      style: TextStyle(fontSize: 12),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    onTap: () async {
-                      Get.back();
-                      await Get.toNamed('/new_bill');
-                      controller.loadDashboardData();
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  ListTile(
-                    leading: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF1F5F9),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(
-                        Icons.list_alt,
-                        color: Color(0xFF1E3A8A),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Select Data Entry Method',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 18,
+                        color: sheetTheme.colorScheme.onSurface,
                       ),
                     ),
-                    title: const Text(
-                      'Bulk Entry',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    const SizedBox(height: 16),
+                    ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: sheetTheme.brightness == Brightness.dark
+                              ? const Color(0xFF334155)
+                              : const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(Icons.person, color: sheetTheme.colorScheme.primary),
+                      ),
+                      title: Text(
+                        'Single Meter Entry',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: sheetTheme.colorScheme.onSurface,
+                        ),
+                      ),
+                      subtitle: Text(
+                        'Add usage for one specific meter',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: sheetTheme.colorScheme.onSurface.withAlpha(140),
+                        ),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      onTap: () async {
+                        Get.back();
+                        await Get.toNamed('/new_bill');
+                        controller.loadDashboardData();
+                      },
                     ),
-                    subtitle: const Text(
-                      'Add readings for all meters at once',
-                      style: TextStyle(fontSize: 12),
+                    const SizedBox(height: 8),
+                    ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: sheetTheme.brightness == Brightness.dark
+                              ? const Color(0xFF334155)
+                              : const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(Icons.list_alt, color: sheetTheme.colorScheme.primary),
+                      ),
+                      title: Text(
+                        'Bulk Entry',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: sheetTheme.colorScheme.onSurface,
+                        ),
+                      ),
+                      subtitle: Text(
+                        'Add readings for all meters at once',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: sheetTheme.colorScheme.onSurface.withAlpha(140),
+                        ),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      onTap: () async {
+                        Get.back();
+                        await Get.toNamed('/bulk_bill');
+                        controller.loadDashboardData();
+                      },
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    onTap: () async {
-                      Get.back();
-                      await Get.toNamed('/bulk_bill');
-                      controller.loadDashboardData();
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              ),
-            ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              );
+            },
           );
         },
         child: const Icon(Icons.add, color: Colors.white),

@@ -9,21 +9,25 @@ class BulkBillingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Obx(() {
       final isLoading = controller.isLoading.value;
       final isEmpty = controller.meters.isEmpty;
 
       return Scaffold(
-        backgroundColor: const Color(0xFFF8FAFC),
+        backgroundColor: theme.scaffoldBackgroundColor,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: theme.appBarTheme.backgroundColor,
           elevation: 0,
-          leading: const BackButton(color: Colors.black),
-          title: const Text(
+          leading: BackButton(color: colorScheme.onSurface),
+          title: Text(
             'Bulk Readings',
             style: TextStyle(
               fontWeight: FontWeight.w800,
-              color: Color(0xFF0F172A),
+              color: colorScheme.onSurface,
               fontSize: 20,
             ),
           ),
@@ -34,14 +38,19 @@ class BulkBillingScreen extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withAlpha(5),
-                        blurRadius: 10,
-                        offset: const Offset(0, -4),
-                      ),
-                    ],
+                    color: theme.cardColor,
+                    border: isDark
+                        ? const Border(top: BorderSide(color: Color(0xFF334155)))
+                        : null,
+                    boxShadow: isDark
+                        ? null
+                        : [
+                            BoxShadow(
+                              color: Colors.black.withAlpha(8),
+                              blurRadius: 10,
+                              offset: const Offset(0, -4),
+                            ),
+                          ],
                   ),
                   child: SizedBox(
                     width: double.infinity,
@@ -57,8 +66,6 @@ class BulkBillingScreen extends StatelessWidget {
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1E3A8A), // Dark blue
-                        foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -78,22 +85,27 @@ class BulkBillingScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withAlpha(5),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
+                        color: theme.cardColor,
+                        border: isDark
+                            ? const Border(bottom: BorderSide(color: Color(0xFF334155)))
+                            : null,
+                        boxShadow: isDark
+                            ? null
+                            : [
+                                BoxShadow(
+                                  color: Colors.black.withAlpha(8),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'BULK DATA ENTRY',
                             style: TextStyle(
-                              color: Color(0xFF64748B),
+                              color: colorScheme.onSurface.withAlpha(130),
                               fontWeight: FontWeight.bold,
                               fontSize: 10,
                               letterSpacing: 1.5,
@@ -102,12 +114,12 @@ class BulkBillingScreen extends StatelessWidget {
                           const SizedBox(height: 16),
 
                           // Date
-                          const Text(
+                          Text(
                             'Billing Cycle (Date)',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 13,
-                              color: Color(0xFF0F172A),
+                              color: colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -121,16 +133,15 @@ class BulkBillingScreen extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(12),
                                     borderSide: BorderSide.none,
                                   ),
-                                  filled: true,
-                                  fillColor: const Color(0xFFF1F5F9),
-                                  prefixIcon: const Icon(
+                                  prefixIcon: Icon(
                                     Icons.calendar_today,
-                                    color: Color(0xFF64748B),
+                                    color: colorScheme.onSurface.withAlpha(140),
                                   ),
                                 ),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
+                                  color: colorScheme.onSurface,
                                 ),
                               ),
                             ),
@@ -138,12 +149,12 @@ class BulkBillingScreen extends StatelessWidget {
                           const SizedBox(height: 20),
 
                           // Cost Per Unit
-                          const Text(
+                          Text(
                             'Universal Cost per Unit (₹)',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 13,
-                              color: Color(0xFF0F172A),
+                              color: colorScheme.onSurface,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -154,17 +165,16 @@ class BulkBillingScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(12),
                                 borderSide: BorderSide.none,
                               ),
-                              filled: true,
-                              fillColor: const Color(0xFFF1F5F9),
                               hintText: 'e.g. 8.5',
-                              prefixIcon: const Icon(
+                              prefixIcon: Icon(
                                 Icons.attach_money,
-                                color: Color(0xFF64748B),
+                                color: colorScheme.onSurface.withAlpha(140),
                               ),
                             ),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
+                              color: colorScheme.onSurface,
                             ),
                             keyboardType: const TextInputType.numberWithOptions(
                               decimal: true,
@@ -193,15 +203,18 @@ class BulkBillingScreen extends StatelessWidget {
                           margin: const EdgeInsets.only(bottom: 12),
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: theme.cardColor,
                             borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withAlpha(2),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
+                            border: isDark ? Border.all(color: const Color(0xFF334155)) : null,
+                            boxShadow: isDark
+                                ? null
+                                : [
+                                    BoxShadow(
+                                      color: Colors.black.withAlpha(5),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
                           ),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -212,17 +225,17 @@ class BulkBillingScreen extends StatelessWidget {
                                   children: [
                                     Text(
                                       meter['meter_name'],
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,
-                                        color: Color(0xFF0F172A),
+                                        color: colorScheme.onSurface,
                                       ),
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
                                       'Prev: $prevReading kWh',
                                       style: TextStyle(
-                                        color: Colors.grey[600],
+                                        color: colorScheme.onSurface.withAlpha(140),
                                         fontSize: 12,
                                         fontStyle: FontStyle.italic,
                                       ),
@@ -243,14 +256,13 @@ class BulkBillingScreen extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(8),
                                       borderSide: BorderSide.none,
                                     ),
-                                    filled: true,
-                                    fillColor: const Color(0xFFF1F5F9),
                                     hintText: 'New (kWh)',
                                     hintStyle: const TextStyle(fontSize: 12),
                                   ),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
+                                    color: colorScheme.onSurface,
                                   ),
                                   keyboardType: const TextInputType.numberWithOptions(
                                     decimal: true,

@@ -7,6 +7,10 @@ class BillDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
     final Map<String, dynamic> args = Get.arguments ?? {};
     final int billId = args['billId'] ?? 0;
     final Map<String, dynamic>? billMap = args['bill'];
@@ -24,16 +28,16 @@ class BillDetailsScreen extends StatelessWidget {
     );
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: theme.appBarTheme.backgroundColor,
         elevation: 0,
-        leading: const BackButton(color: Colors.black),
-        title: const Text(
+        leading: BackButton(color: colorScheme.onSurface),
+        title: Text(
           'Invoice Summary',
           style: TextStyle(
             fontWeight: FontWeight.w800,
-            color: Color(0xFF0F172A),
+            color: colorScheme.onSurface,
             fontSize: 20,
           ),
         ),
@@ -51,7 +55,7 @@ class BillDetailsScreen extends StatelessWidget {
             }
 
             return IconButton(
-              icon: const Icon(Icons.share, color: Color(0xFF1E3A8A)),
+              icon: Icon(Icons.share, color: colorScheme.primary),
               tooltip: 'Share as Image',
               onPressed: () {
                 final shareWidget = _buildShareWidget(
@@ -73,10 +77,10 @@ class BillDetailsScreen extends StatelessWidget {
         }
 
         if (controller.records.isEmpty) {
-          return const Center(
+          return Center(
             child: Text(
               'No records found for this bill.',
-              style: TextStyle(color: Colors.grey),
+              style: TextStyle(color: colorScheme.onSurface.withAlpha(140)),
             ),
           );
         }
@@ -97,8 +101,8 @@ class BillDetailsScreen extends StatelessWidget {
               // Title
               Text(
                 '$monthYear Invoice',
-                style: const TextStyle(
-                  color: Color(0xFF0F172A),
+                style: TextStyle(
+                  color: colorScheme.onSurface,
                   fontSize: 28,
                   fontWeight: FontWeight.w900,
                 ),
@@ -106,11 +110,14 @@ class BillDetailsScreen extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 'Billing Cycle: $monthYear',
-                style: const TextStyle(color: Color(0xFF475569), fontSize: 13),
+                style: TextStyle(
+                  color: colorScheme.onSurface.withAlpha(160),
+                  fontSize: 13,
+                ),
               ),
               const SizedBox(height: 24),
 
-              // Total Bill Summary Card
+              // Total Bill Summary Card (intentionally always dark blue)
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -195,10 +202,10 @@ class BillDetailsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
 
-              const Text(
+              Text(
                 'Meter-wise Usage Breakdown',
                 style: TextStyle(
-                  color: Color(0xFF0F172A),
+                  color: colorScheme.onSurface,
                   fontSize: 16,
                   fontWeight: FontWeight.w900,
                 ),
@@ -218,15 +225,20 @@ class BillDetailsScreen extends StatelessWidget {
                       margin: const EdgeInsets.only(bottom: 12),
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: theme.cardColor,
                         borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withAlpha(5),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
+                        border: isDark
+                            ? Border.all(color: const Color(0xFF334155))
+                            : null,
+                        boxShadow: isDark
+                            ? null
+                            : [
+                                BoxShadow(
+                                  color: Colors.black.withAlpha(8),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
                       ),
                       child: Column(
                         children: [
@@ -235,38 +247,43 @@ class BillDetailsScreen extends StatelessWidget {
                             children: [
                               Text(
                                 mName,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
-                                  color: Color(0xFF0F172A),
+                                  color: colorScheme.onSurface,
                                 ),
                               ),
                               Text(
                                 '₹${(r['amount'] ?? 0.0).toStringAsFixed(2)}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.w900,
                                   fontSize: 16,
-                                  color: Color(0xFF1E3A8A),
+                                  color: colorScheme.primary,
                                 ),
                               ),
                             ],
                           ),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8),
-                            child: Divider(color: Color(0xFFF1F5F9)),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Divider(
+                              color: colorScheme.onSurface.withAlpha(20),
+                            ),
                           ),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               _buildDetailColumn(
+                                context,
                                 'Previous Reading',
                                 '${r['previous_reading']}',
                               ),
                               _buildDetailColumn(
+                                context,
                                 'Current Reading',
                                 '${r['current_reading']}',
                               ),
                               _buildDetailColumn(
+                                context,
                                 'Usage',
                                 '${r['consumption']} kWh',
                                 isHighlight: true,
@@ -287,16 +304,21 @@ class BillDetailsScreen extends StatelessWidget {
   }
 
   Widget _buildDetailColumn(
+    BuildContext context,
     String label,
     String value, {
     bool isHighlight = false,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(color: Color(0xFF64748B), fontSize: 11),
+          style: TextStyle(
+            color: colorScheme.onSurface.withAlpha(140),
+            fontSize: 11,
+          ),
         ),
         const SizedBox(height: 4),
         Text(
@@ -304,7 +326,7 @@ class BillDetailsScreen extends StatelessWidget {
           style: TextStyle(
             color: isHighlight
                 ? const Color(0xFF059669)
-                : const Color(0xFF0F172A),
+                : colorScheme.onSurface,
             fontWeight: isHighlight ? FontWeight.w900 : FontWeight.bold,
             fontSize: 13,
           ),
@@ -320,93 +342,100 @@ class BillDetailsScreen extends StatelessWidget {
     double globalCost,
     BillDetailsController controller,
   ) {
-    return Material(
-      color: Colors.white,
-      child: Directionality(
-        textDirection: TextDirection.ltr,
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          color: Colors.white,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Invoice: $monthYear',
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    'Total Amount: ₹${totalAmount.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+    // Share widget is always light (for image export)
+    return Theme(
+      data: ThemeData.light(),
+      child: Material(
+        color: Colors.white,
+        child: Directionality(
+          textDirection: TextDirection.ltr,
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            color: Colors.white,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Bill On $monthYear',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black,
                   ),
-                  Text(
-                    'Total Usage: ${totalUsage.toStringAsFixed(1)} kWh',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              DataTable(
-                headingTextStyle: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
                 ),
-                columnSpacing: 16,
-                horizontalMargin: 0,
-                showBottomBorder: true,
-                columns: const [
-                  DataColumn(label: Text('Meter')),
-                  DataColumn(label: Text('Prev')),
-                  DataColumn(label: Text('Cur')),
-                  DataColumn(label: Text('Usg')),
-                  DataColumn(label: Text('Amt(₹)')),
-                ],
-                rows: controller.records
-                    .where(
-                      (r) =>
-                          (r['consumption'] ?? 0) > 0 ||
-                          controller.records.length == 1,
-                    )
-                    .map((r) {
-                      final mName =
-                          controller.meters[r['meter_id']] ?? 'Unknown';
-                      return DataRow(
-                        cells: [
-                          DataCell(
-                            Text(
-                              mName,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
+                const SizedBox(height: 16),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Total Amount: ₹${totalAmount.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
+                    ),
+                    Text(
+                      'Total Usage: ${totalUsage.toStringAsFixed(1)} kWh',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                DataTable(
+                  headingTextStyle: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                  dataTextStyle: const TextStyle(color: Colors.black),
+                  columnSpacing: 16,
+                  horizontalMargin: 0,
+                  showBottomBorder: true,
+                  columns: const [
+                    DataColumn(label: Text('Meter')),
+                    DataColumn(label: Text('Prev')),
+                    DataColumn(label: Text('Cur')),
+                    DataColumn(label: Text('Usg')),
+                    DataColumn(label: Text('Amt(₹)')),
+                  ],
+                  rows: controller.records
+                      .where(
+                        (r) =>
+                            (r['consumption'] ?? 0) > 0 ||
+                            controller.records.length == 1,
+                      )
+                      .map((r) {
+                        final mName =
+                            controller.meters[r['meter_id']] ?? 'Unknown';
+                        return DataRow(
+                          cells: [
+                            DataCell(
+                              Text(
+                                mName,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
-                          ),
-                          DataCell(Text('${r['previous_reading']}')),
-                          DataCell(Text('${r['current_reading']}')),
-                          DataCell(Text('${r['consumption']}')),
-                          DataCell(
-                            Text((r['amount'] ?? 0.0).toStringAsFixed(2)),
-                          ),
-                        ],
-                      );
-                    })
-                    .toList(),
-              ),
-              const SizedBox(height: 24),
-            ],
+                            DataCell(Text('${r['previous_reading']}')),
+                            DataCell(Text('${r['current_reading']}')),
+                            DataCell(Text('${r['consumption']}')),
+                            DataCell(
+                              Text((r['amount'] ?? 0.0).toStringAsFixed(2)),
+                            ),
+                          ],
+                        );
+                      })
+                      .toList(),
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),
