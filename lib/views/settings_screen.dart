@@ -15,6 +15,21 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         children: [
+          ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(40),
+              child: Icon(
+                Icons.person,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            title: Text(
+              authController.getCurrentUser()?.email ?? 'Unknown User',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: const Text('Currently Logged In'),
+          ),
+          const Divider(),
           Obx(
             () => SwitchListTile(
               title: const Text('Dark Mode'),
@@ -25,29 +40,6 @@ class SettingsScreen extends StatelessWidget {
                 themeController.isDarkMode ? Icons.dark_mode : Icons.light_mode,
               ),
             ),
-          ),
-          const Divider(),
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              'Coming Soon',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ),
-          const ListTile(
-            leading: Icon(Icons.picture_as_pdf, color: Colors.red),
-            title: Text('Export to PDF'),
-            subtitle: Text('Generate sharing-ready PDF bills'),
-          ),
-          const ListTile(
-            leading: Icon(Icons.share, color: Colors.blue),
-            title: Text('Share via WhatsApp'),
-            subtitle: Text('Instantly send bills to your tenants'),
-          ),
-          const ListTile(
-            leading: Icon(Icons.bar_chart, color: Colors.green),
-            title: Text('Analytics'),
-            subtitle: Text('Track electricity consumption over time'),
           ),
           const Divider(),
           ListTile(

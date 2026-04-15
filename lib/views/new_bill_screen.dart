@@ -268,13 +268,15 @@ class NewBillScreen extends StatelessWidget {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: selectedMeterId.value != null
+                        onPressed: selectedMeterId.value != null && !controller.isLoading.value
                             ? () => controller.saveBill()
                             : null,
-                        icon: const Icon(Icons.save, size: 18),
-                        label: const Text(
-                          'Record Monthly Entry',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        icon: controller.isLoading.value 
+                            ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                            : const Icon(Icons.save, size: 18),
+                        label: Text(
+                          controller.isLoading.value ? 'Saving...' : 'Record Monthly Entry',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(

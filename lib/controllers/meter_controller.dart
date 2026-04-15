@@ -19,21 +19,39 @@ class MeterController extends GetxController {
   }
 
   Future<void> addMeter(String name, double openingReading) async {
-    await DatabaseHelper.instance.insertMeter({
-      'meter_name': name,
-      'opening_reading': openingReading,
-      'latest_reading': openingReading,
-    });
-    await loadMeters();
+    if (isLoading.value) return;
+    isLoading.value = true;
+    try {
+      await DatabaseHelper.instance.insertMeter({
+        'meter_name': name,
+        'opening_reading': openingReading,
+        'latest_reading': openingReading,
+      });
+      await loadMeters();
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> renameMeter(String id, String newName) async {
-    await DatabaseHelper.instance.updateMeterName(id, newName);
-    await loadMeters();
+    if (isLoading.value) return;
+    isLoading.value = true;
+    try {
+      await DatabaseHelper.instance.updateMeterName(id, newName);
+      await loadMeters();
+    } finally {
+      isLoading.value = false;
+    }
   }
   
   Future<void> deleteMeter(String id) async {
-    await DatabaseHelper.instance.deleteMeter(id);
-    await loadMeters();
+    if (isLoading.value) return;
+    isLoading.value = true;
+    try {
+      await DatabaseHelper.instance.deleteMeter(id);
+      await loadMeters();
+    } finally {
+      isLoading.value = false;
+    }
   }
 }

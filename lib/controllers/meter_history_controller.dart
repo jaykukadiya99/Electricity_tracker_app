@@ -50,6 +50,7 @@ class MeterHistoryController extends GetxController {
 
   Future<void> deleteRecord(Map<String, dynamic> record) async {
     Get.defaultDialog(
+      contentPadding: EdgeInsets.all(8),
       title: 'Delete Reading',
       middleText:
           'Are you sure you want to delete this reading? This will update the meter and parent bill totals.',
@@ -57,6 +58,7 @@ class MeterHistoryController extends GetxController {
       textCancel: 'Cancel',
       confirmTextColor: const Color(0xFFFFFFFF),
       buttonColor: const Color(0xFFDC2626), // Red color
+      cancelTextColor: const Color(0xFFDC2626),
       onConfirm: () async {
         Get.back(); // close dialog
         isLoading.value = true;

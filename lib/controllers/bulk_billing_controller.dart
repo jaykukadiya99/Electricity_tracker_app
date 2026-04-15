@@ -38,6 +38,8 @@ class BulkBillingController extends GetxController {
   }
 
   Future<void> saveBulkBill() async {
+    if (isLoading.value) return;
+    
     final costPerUnit = double.tryParse(costPerUnitController.text) ?? 0.0;
     if (costPerUnit <= 0) {
       Get.snackbar(

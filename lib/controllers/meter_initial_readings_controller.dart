@@ -25,6 +25,7 @@ class MeterInitialReadingsController extends GetxController {
   }
 
   Future<void> saveMeters() async {
+    if (isLoading.value) return;
     isLoading.value = true;
     try {
       for (int i = 0; i < count; i++) {

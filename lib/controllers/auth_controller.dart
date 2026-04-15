@@ -9,6 +9,7 @@ class AuthController extends GetxController {
 
   // Handle Login
   Future<void> loginUser(String email, String password) async {
+    if (isLoading.value) return;
     isLoading.value = true;
     try {
       await _auth.signInWithEmailAndPassword(email: email, password: password);

@@ -9,6 +9,7 @@ class NewBillController extends GetxController {
   final costPerUnit = 0.0.obs;
   final monthYearController = TextEditingController();
   final currentReadingController = TextEditingController();
+  final isLoading = false.obs;
   
   @override
   void onInit() {
@@ -55,6 +56,8 @@ class NewBillController extends GetxController {
   }
 
   Future<void> saveBill() async {
+    if (isLoading.value) return;
+    
     if (costPerUnit.value <= 0) {
       Get.snackbar('Error', 'Please enter a valid cost per unit', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red[100], colorText: Colors.red[900]);
       return;
@@ -97,6 +100,7 @@ class NewBillController extends GetxController {
     }
 
     try {
+      isLoading.value = true;
       String billId = await DatabaseHelper.instance.insertBillingHistory({
         'month_year': monthYearController.text.trim(),
         'total_cost_per_unit': costPerUnit.value,
@@ -150,6 +154,8 @@ class NewBillController extends GetxController {
       Get.snackbar('Success', 'Bill created successfully', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green[100], colorText: Colors.green[900]);
     } catch (e) {
       Get.snackbar('Error', 'Failed to save bill: $e', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red[100], colorText: Colors.red[900]);
+    } finally {
+      isLoading.value = false;
     }
   }
 }
