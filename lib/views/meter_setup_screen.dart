@@ -17,22 +17,22 @@ class MeterSetupScreen extends StatelessWidget {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 36),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 40),
+              const SizedBox(height: 10),
               // App Logo
               Center(
                 child: Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: colorScheme.primary.withAlpha(25),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.electric_bolt,
-                    size: 64,
+                    size: 32,
                     color: colorScheme.primary,
                   ),
                 ),
@@ -49,7 +49,7 @@ class MeterSetupScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                'Let\'s set up your property profile.\nHow many meters do you want to track?',
+                'Let\'s set up your property profile.\nEnter your meters and default electricity rate.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: colorScheme.onSurface.withAlpha(160),
@@ -110,10 +110,58 @@ class MeterSetupScreen extends StatelessWidget {
                       ),
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
+                      textInputAction: TextInputAction.next,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 8),
                     Text(
-                      'We will auto-generate base entries (Meter 1, Meter 2, etc.) for you. You can rename them later in the dashboard.',
+                      'We\'ll auto-generate base entries (Meter 1, Meter 2, etc.). You can rename them later.',
+                      style: TextStyle(
+                        color: colorScheme.onSurface.withAlpha(120),
+                        fontSize: 11,
+                        fontStyle: FontStyle.italic,
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Default Unit Price
+                    Text(
+                      'Default Unit Price (Rs./kWh)',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: controller.defaultUnitPriceController,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                        hintText: 'e.g. 8.5',
+                        prefixText: 'Rs. ',
+                        prefixIcon: Icon(
+                          Icons.electrical_services,
+                          color: colorScheme.onSurface.withAlpha(140),
+                        ),
+                      ),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: colorScheme.onSurface,
+                      ),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      textAlign: TextAlign.center,
+                      textInputAction: TextInputAction.done,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Optional — auto-fills in entry forms. You can change this later in Settings.',
                       style: TextStyle(
                         color: colorScheme.onSurface.withAlpha(120),
                         fontSize: 11,

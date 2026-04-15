@@ -28,11 +28,14 @@ class DatabaseHelper {
   Future<void> insertMeter(Map<String, dynamic> meter) async {
     final docRef = _metersRef.doc();
     meter['id'] = docRef.id;
+    // Assign a stable sort_order based on current count so renaming never changes display order
+    final countSnap = await _metersRef.count().get();
+    meter['sort_order'] = (countSnap.count ?? 0);
     await docRef.set(meter);
   }
 
   Future<List<Map<String, dynamic>>> getAllMeters() async {
-    final snapshot = await _metersRef.orderBy('meter_name').get();
+    final snapshot = await _metersRef.orderBy('sort_order').get();
     return snapshot.docs.map((d) {
       final data = d.data() as Map<String, dynamic>;
       data['id'] = d.id;
