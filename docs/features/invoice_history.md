@@ -1,14 +1,39 @@
-# Invoice & Meter History
+# Invoice & Bill Details
 
-## Invoice Summary (`bill_details_screen.dart`)
-When data is saved, the application produces a highly professional, itemized Invoice Summary.
+**Screen:** `bill_details_screen.dart`  
+**Controller:** `BillDetailsController`
 
-- **Total Display:** Prominently flaunts the Total Amount Due `(₹)` and Total Usage `(kWh)`.
-- **Meter-Wise Breakdown:** Filters out empty records and displays a specific white card for every meter included in the bill.
-- **Card Details:** Each card lists the Meter Name, subtotal cost, Previous Reading, Current Reading, and the exact calculated Usage difference.
+## Overview
+After saving any bill (single or bulk), the user is automatically taken to the Bill Details screen, which displays a full breakdown of the generated invoice.
 
-## Meter History (`meter_history_screen.dart`)
-Accessible by tapping any individual meter directly from the "METERS" tab list.
+## Components
 
-- **Overview Summary:** Instantly computes the lifetime Total Cost `(₹)` and Total Usage `(kWh)` for that specific meter.
-- **Ledger:** Provides a chronological scrollable list of every past billing cycle the meter was involved in, detailing the exact reading jumps and costs for historical auditing.
+### Summary Card (Dark Gradient)
+- **Total Amount Due** (Rs.)
+- **Total Consumption** (kWh)
+- **Billing Date / Month**
+- Always renders in the dark navy gradient — not affected by light/dark theme toggle.
+
+### Meter-Wise Breakdown Cards
+For each meter included in the bill:
+- Meter name
+- Previous Reading
+- Current Reading
+- Consumption (kWh)
+- Subtotal Amount (Rs.)
+
+Empty meters (no consumption) are automatically filtered out.
+
+## Share Bill as Image
+
+A **Share** icon in the AppBar allows the user to export the bill as an image.
+
+### How it works
+1. A hidden off-screen `_buildShareWidget` captures the bill layout via `screenshotController`.
+2. The widget is **always rendered in light mode** (`Theme(data: ThemeData.light(...))` wrapper) regardless of the user's current app theme — ensuring text is always dark on a white receipt background.
+3. Critical text and table data explicitly use `color: Colors.black` for maximum contrast.
+4. The captured image is shared via the platform's native share sheet using `share_plus`.
+
+## Bill Deletion
+- Individual bills can be deleted from the home screen bill history list.
+- Deleting a bill removes the `billingHistory` document and all child `billingRecords` via `DatabaseHelper.deleteBill`.
